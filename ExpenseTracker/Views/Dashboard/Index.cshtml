@@ -1,0 +1,206 @@
+@using ExpenseTracker.Helpers
+@using System.Globalization
+@{
+    ViewData["IsDashboard"] = true;
+
+    var currencyIcon = CurrencyDisplayHelper.GetIconClass();
+    
+    // Define the data source for your Syncfusion DropDownList
+    var dateOptions = new[] {
+        new { Id = "7days", Text = "Last 7 Days" },
+        new { Id = "14days", Text = "Last 14 Days" },
+        new { Id = "30days", Text = "Last 30 Days" },
+        new { Id = "thismonth", Text = "This Month" }
+    };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+        <h3 class="fw-bold m-0">Dashboard</h3>
+    </div>
+    <!-- Restricts the dropdown to a clean, non-obtrusive layout width -->
+    <div style="width: 220px;">
+        <ejs-dropdownlist id="dateRangePicker" 
+                          dataSource="@dateOptions" 
+                          index="0"
+                          change="onDateRangeChange">
+            <e-dropdownlist-fields text="Text" value="Id"></e-dropdownlist-fields>
+        </ejs-dropdownlist>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <!-- Income Card -->
+    <div class="col-md-4">
+        <div class="d-flex flex-row widget summary income">
+            <div class="d-flex flex-column justify-content-center p-5">
+                <i class="fa-solid @currencyIcon fa-2xl"></i>
+            </div>
+            <div class="d-flex flex-column m-auto py-3">
+                <span class="lead">Total Income</span>
+                <h1 id="totalIncome" class="display-6 fw-bold">0</h1> 
+            </div>
+        </div>
+    </div>
+
+    <!-- Expense Card -->
+    <div class="col-md-4">
+        <div class="d-flex flex-row widget summary expense">
+            <div class="d-flex flex-column justify-content-center p-5">
+                <i class="fa-solid @currencyIcon fa-2xl"></i>
+            </div>
+            <div class="d-flex flex-column m-auto py-3">
+                <span class="lead">Total Expense</span>
+                <h1 id="totalExpense" class="display-6 fw-bold">0</h1>
+            </div>
+        </div>
+    </div>
+
+    <!-- Balance Card -->
+    <div class="col-md-4">
+        <div class="d-flex flex-row widget summary balance">
+            <div class="d-flex flex-column justify-content-center p-5">
+                <i class="fa-solid @currencyIcon fa-2xl"></i>
+            </div>
+            <div class="d-flex flex-column m-auto py-3">
+                <span class="lead">Balance</span>
+                <h1 id="balance" class="display-6 fw-bold">0</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* doughnut chart and spline chart *@
+<div class="row mb-4">
+    <div class="col-4">
+        <div class="widget chart">
+            <div class="title p-4">
+                <h5 class="fw-bold">Expense By Category</h5>
+                <ejs-accumulationchart id="doughnutchart" enableAnimation enableSmartLabels>
+                    <e-accumulation-series-collection>
+                        <e-accumulation-series xName="categoryTitleWithIcon"
+                        yName="amount" innerRadius="60%" legendShape="Circle"
+                        palettes=@(new string[]{"#0e8d76","#a4b219","#cb9b00","#8a442c","#0454b5","#7d0a0a","#822690","#4c2090","#313e93","#0096ac"})>
+                            <e-accumulationseries-datalabel name="formattedAmount" visible=true></e-accumulationseries-datalabel>
+                        </e-accumulation-series>
+                    </e-accumulation-series-collection>
+                    <e-accumulationchart-legendsettings position="Top" toggleVisibility=false>
+                        <e-legendsettings-textstyle color="#fff" size="1rem"></e-legendsettings-textstyle>
+                    </e-accumulationchart-legendsettings>
+                    <e-accumulationchart-tooltipsettings enable></e-accumulationchart-tooltipsettings>
+                </ejs-accumulationchart>
+            </div>
+        </div>
+    </div>
+    <div class="col-8">
+        <div class="widget chart">
+            <div class="title p-4">
+                <h5 class="fw-bold">Income vs Expense</h5>
+                <ejs-chart id="spline-chart" palettes="@(new string[]{"#54ffa9", "#ffe91a"})">
+                    <e-chart-primaryxaxis valueType="Category">
+                        <e-majorgridlines width="0"></e-majorgridlines>
+                        <e-majorticklines width="0"></e-majorticklines>
+                    </e-chart-primaryxaxis>
+                    <e-chart-primaryyaxis>
+                        <e-majorgridlines width="1" color="#32414d" dashArray="3,5"></e-majorgridlines>
+                        <e-majorticklines width="0"></e-majorticklines>
+                        <e-linestyle width="0"></e-linestyle>
+                    </e-chart-primaryyaxis>
+                    <e-chart-chartarea >
+                        <e-chartarea-border width="0"></e-chartarea-border>
+                    </e-chart-chartarea>
+                    <e-series-collection>
+                        <e-series xName="day" yName="income" name="Income" width="3"
+                        type="@Syncfusion.EJ2.Charts.ChartSeriesType.Spline"></e-series>
+                        <e-series xName="day" yName="expense" name="Expense" width="3"
+                        type="@Syncfusion.EJ2.Charts.ChartSeriesType.Spline"></e-series>
+                    </e-series-collection>
+                    <e-chart-legendsettings position="Top" alignment="Far" toggleVisibility=false>
+                        <e-legendsettings-textstyle color="#fff" size="1rem"></e-legendsettings-textstyle>
+                    </e-chart-legendsettings>
+                    <e-chart-tooltipsettings enable shared></e-chart-tooltipsettings>
+                </ejs-chart>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Resent Transactions *@
+<div class="row">
+    <div class="col-md-6">
+        <div class="widget">
+            <h5 class="fw-bold">Resent Transactions</h5>
+            <div class="px-4 pb-4">
+                <ejs-grid id="recent-transaction" gridLines="None">
+                    <e-grid-columns>
+                        <e-grid-column field="CategoryTitleWithIcon" headerText="Category"></e-grid-column>
+                        <e-grid-column field="Date" headerText="Date" width="110px" type="date" format="MMM-dd-yy"
+                        textAlign="Left"></e-grid-column>
+                        <e-grid-column field="FormattedAmount" headerText="Amount" width="110px" textAlign="Right"></e-grid-column>
+                        <e-grid-column field="Note" headerText="Note" width="110px"></e-grid-column>
+                    </e-grid-columns>
+                </ejs-grid>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="widget h-100">
+            <div class="d-flex justify-content-center align-items-center h-100">
+                <span><i class="fa-solid fa-plus fa-2xl"></i>Widget</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Runs automatically when the user selects a different range in the dropdown
+    function onDateRangeChange(args) {
+        updateDashboard(args.value);
+    }
+
+    // Fetches fresh metrics via an AJAX call and updates card contents instantly
+    function updateDashboard(range) {
+        var url = '@Url.Action("GetDashboardData", "Dashboard")' + '?dateRange=' + range;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("totalIncome").innerText = data.totalIncome;
+                document.getElementById("totalExpense").innerText = data.totalExpense;
+                document.getElementById("balance").innerText = data.balance;
+
+                // Dougnut Chart
+                var chartInstance = document.getElementById('doughnutchart').ej2_instances[0];
+                
+                if (chartInstance) {
+                    chartInstance.series[0].dataSource = data.chartData;
+                    
+                    chartInstance.refresh();
+                }
+
+                // Spline Chart
+                var splineChartInstance = document.getElementById('spline-chart').ej2_instances[0];
+                
+                if (splineChartInstance) {
+                    splineChartInstance.dataSource = data.splineData;
+
+                    splineChartInstance.refresh();
+                }
+
+                // Recent Transactions
+                var gridInstance = document.getElementById('recent-transaction').ej2_instances[0];
+
+                if (gridInstance) {
+                    gridInstance.dataSource = data.recentTransactionData;
+
+                    gridInstance.refresh();
+                }
+            })
+            .catch(error => console.error("Error loading dashboard data:", error));
+    }
+
+    // Triggers an initial load for "Last 7 Days" as soon as the DOM is ready
+    document.addEventListener("DOMContentLoaded", function () {
+        updateDashboard("7days");
+    });
+</script>
