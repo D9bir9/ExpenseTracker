@@ -1,103 +1,82 @@
 ﻿@{
-    var currentCulture = System.Globalization.CultureInfo.CurrentCulture.Name;
-    var cultures = new[]
-    {
-        new { Value = "en-US", Text = "English (US) - $" },
-        new { Value = "en-GB", Text = "English (UK) - £" },
-        new { Value = "fr-FR", Text = "French - €" },
-        new { Value = "de-DE", Text = "German - €" },
-        new { Value = "ja-JP", Text = "Japanese - ¥" },
-        new { Value = "en-NG", Text = "English (NG) - ₦"}
-    };
 }
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Expense Tracker</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    @* <link rel="stylesheet" href="https://cdn.syncfusion.com/ej2/34.2.2/material.css" /> *@
-    <link href="https://cdn.syncfusion.com/ej2/34.2.2/bootstrap5-dark.css" rel="stylesheet"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg==" crossorigin="anonymous" referrerpolicy="no-referrer">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/ExpenseTracker.styles.css" asp-append-version="true" />
-    <script src="https://cdn.syncfusion.com/ej2/34.2.2/dist/ej2.min.js"></script>
-</head>
-<body class="e-bigger">
-    <partial name="_Sidebar"/>
-    <div class="dock-target">
-        <nav class="navbar sticky-top">
-            <div class="container-fluid py-2 px-4">
-                <i class="fa fa-solid fa-magnifying-glass"></i>
-                <div class="d-flex justify-content-center align-items-center">
-                    <div>
-                        <form asp-controller="Culture" asp-action="SetCulture" method="post"
-                            asp-route-returnUrl="@Context.Request.Path">
-                            <select name="culture" onchange="this.form.submit()" class="form-select">
-                                @foreach (var c in cultures)
-                                {
-                                    <option value="@c.Value" selected="@(c.Value == currentCulture)">@c.Text</option>
-                                }
-                            </select>
-                        </form>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Expense Tracker</title>
+        <script type="importmap"></script>
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+        @* <link rel="stylesheet" href="https://cdn.syncfusion.com/ej2/34.2.2/material.css" /> *@
+        <link href="https://cdn.syncfusion.com/ej2/34.2.2/bootstrap5-dark.css" rel="stylesheet"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg==" crossorigin="anonymous" referrerpolicy="no-referrer">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/ExpenseTracker.styles.css" asp-append-version="true" />
+        <script src="https://cdn.syncfusion.com/ej2/34.2.2/dist/ej2.min.js"></script>
+    </head>
+    <body class="e-bigger">
+        <partial name="_Sidebar"/>
+        <div class="dock-target">
+            <nav class="navbar sticky-top">
+                <div class="container-fluid py-2 px-4">
+                    <i class="fa fa-solid fa-magnifying-glass"></i>
+                    <div class="d-flex justify-content-center align-items-center">
+                        <div>
+                            <i class="fa fa-solid fa-bell"></i>
+                        </div>
+                        <div class="mx-3">
+                            <i class="fa fa-solid fa-message"></i>
+                        </div>
+                        <div class="mx-2">
+                            <img class="profile-pic" src="~/profile.jpg" />
+                        </div>
+                        
                     </div>
-                    <div>
-                        <i class="fa fa-solid fa-bell"></i>
-                    </div>
-                    <div class="mx-3">
-                        <i class="fa fa-solid fa-message"></i>
-                    </div>
-                    <div class="mx-2">
-                        <img class="profile-pic" src="~/profile.jpg" />
-                    </div>
-                    
                 </div>
-            </div>
-        </nav>
-        <div class="main-content">
-            <div class="container mt-5">
-                <div class="row justify-content-center">
-                    <div class=@(ViewData["IsDashboard"] == null? "col-md-10" : "col-md-12")>
-                        <main role="main" class="pb-3">
-                            @if(ViewData["IsDashboard"] == null){
-                                <div class="row">
-                                    <div class="col-md-7">
-                                        <div class="d-flex flex-column mb-5">
-                                            <div class="d-flex mb-1">
-                                                <div class="flex-grow-1">
-                                                    <h3 class="fw-bold">@ViewData["PageTitle"]</h3>
+            </nav>
+            <div class="main-content">
+                <div class="container mt-5">
+                    <div class="row justify-content-center">
+                        <div class=@(ViewData["IsDashboard"] == null? "col-md-10" : "col-md-12")>
+                            <main role="main" class="pb-3">
+                                @if(ViewData["IsDashboard"] == null){
+                                    <div class="row">
+                                        <div class="col-md-7">
+                                            <div class="d-flex flex-column mb-5">
+                                                <div class="d-flex mb-1">
+                                                    <div class="flex-grow-1">
+                                                        <h3 class="fw-bold">@ViewData["PageTitle"]</h3>
+                                                    </div>
+                                                    <div>
+                                                        @if(@ViewData["PageActionText"] != null)
+                                                            {
+                                                                <a class="btn btn-success" style="color: #fff" href="@ViewData["PageActionUrl"]">
+                                                                    @ViewData["PageActionText"]
+                                                                </a>
+                                                            }
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    @if(@ViewData["PageActionText"] != null)
-                                                        {
-                                                            <a class="btn btn-success" style="color: #fff" href="@ViewData["PageActionUrl"]">
-                                                                @ViewData["PageActionText"]
-                                                            </a>
-                                                        }
-                                                </div>
+                                                @* breadCrumb *@
+                                                <ejs-breadcrumb id="breadcrumb"
+                                                separatorTemplate="@Html.Raw("<span class='fa-solid fa-angle-right'></span>")"></ejs-breadcrumb>
                                             </div>
-                                            @* breadCrumb *@
-                                            <ejs-breadcrumb id="breadcrumb"
-                                            separatorTemplate="@Html.Raw("<span class='fa-solid fa-angle-right'></span>")"></ejs-breadcrumb>
                                         </div>
                                     </div>
-                                </div>
-                            }
-                            @RenderBody()
-                        </main>
+                                }
+                                @RenderBody()
+                            </main>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
-    <ejs-scripts></ejs-scripts>
-</body>
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+        @await RenderSectionAsync("Scripts", required: false)
+        <ejs-scripts></ejs-scripts>
+    </body>
 </html>

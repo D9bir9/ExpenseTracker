@@ -216,3 +216,4 @@
 /home/dabi/Desktop/MVC_tutorial/ExpenseTracker/bin/Debug/net10.0/Syncfusion.Telemetry.dll
 /home/dabi/Desktop/MVC_tutorial/ExpenseTracker/obj/Debug/net10.0/compressed/9yjzlft51c-{0}-ihz5u0lihh-ihz5u0lihh.gz
 /home/dabi/Desktop/MVC_tutorial/ExpenseTracker/obj/Debug/net10.0/compressed/lsz27yj9kw-{0}-dhjlvh07ge-dhjlvh07ge.gz
+/home/dabi/Desktop/MVC_tutorial/ExpenseTracker/obj/Debug/net10.0/ExpenseTracker.sourcelink.json

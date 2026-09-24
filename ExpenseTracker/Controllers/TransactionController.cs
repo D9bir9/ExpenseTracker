@@ -43,10 +43,16 @@ namespace ExpenseTracker.Controllers
             {
                 if(obj.TransactionId == 0)
                 {
+                   
+                    obj.CultureCode = System.Globalization.CultureInfo.CurrentCulture.Name;
                     _unitOfWork.Transaction.Create(obj);
                 }
                 else
                 {
+                    // preserve the original CultureCode on edit — reload it from the DB
+                    // rather than trusting the hidden form field, since a user could tamper with it
+                    var existing = _unitOfWork.Transaction.GetById(t => t.TransactionId == obj.TransactionId, "");
+                    obj.CultureCode = existing?.CultureCode;
                     _unitOfWork.Transaction.Update(obj);
                 }
                 _unitOfWork.Save();

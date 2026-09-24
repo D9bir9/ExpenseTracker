@@ -12,21 +12,54 @@
         new { Id = "30days", Text = "Last 30 Days" },
         new { Id = "thismonth", Text = "This Month" }
     };
+
+    var currentCulture = System.Globalization.CultureInfo.CurrentCulture.Name;
+    var cultures = new[]
+    {
+        new { Value = "en-US", Text = "USD - $" },
+        new { Value = "en-GB", Text = "GBP - £" },
+        new { Value = "fr-FR", Text = "FR EUR - €" },
+        new { Value = "de-DE", Text = "DE EURO - €" },
+        new { Value = "ja-JP", Text = "JPY - ¥" },
+        new { Value = "en-NG", Text = "NGN - ₦"}
+    };
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
     <div>
         <h3 class="fw-bold m-0">Dashboard</h3>
     </div>
-    <!-- Restricts the dropdown to a clean, non-obtrusive layout width -->
-    <div style="width: 220px;">
-        <ejs-dropdownlist id="dateRangePicker" 
-                          dataSource="@dateOptions" 
-                          index="0"
-                          change="onDateRangeChange">
-            <e-dropdownlist-fields text="Text" value="Id"></e-dropdownlist-fields>
-        </ejs-dropdownlist>
+
+    <div class="d-flex flex-row">
+        <div class="mx-5">
+            <form id="cultureForm" asp-controller="Culture" asp-action="SetCulture" method="post"
+                asp-route-returnUrl="@Context.Request.Path">
+                
+                <div style="width: 220px;">
+                    <!-- Added name="culture" attribute below -->
+                    <ejs-dropdownlist id="cultureDropdown" 
+                                    name="culture" 
+                                    dataSource="@cultures" 
+                                    value="@currentCulture"
+                                    change="onCultureChange">
+                        <e-dropdownlist-fields text="Text" value="Value"></e-dropdownlist-fields>
+                    </ejs-dropdownlist>
+                </div>
+            </form>
+        </div>
+
+        <!-- Restricts the dropdown to a clean, non-obtrusive layout width -->
+        <div style="width: 220px;">
+            <ejs-dropdownlist id="dateRangePicker" 
+                            dataSource="@dateOptions" 
+                            index="0"
+                            change="onDateRangeChange">
+                <e-dropdownlist-fields text="Text" value="Id"></e-dropdownlist-fields>
+            </ejs-dropdownlist>
+        </div>
     </div>
+
+
 </div>
 
 <div class="row mb-4">
@@ -203,4 +236,12 @@
     document.addEventListener("DOMContentLoaded", function () {
         updateDashboard("7days");
     });
+
+    // This function automatically submits the form when a new culture is clicked
+    function onCultureChange(args) {
+        // args.value contains the newly selected culture string (e.g., "en-NG")
+        if (args.value) {
+            document.getElementById('cultureForm').submit();
+        }
+    }
 </script>

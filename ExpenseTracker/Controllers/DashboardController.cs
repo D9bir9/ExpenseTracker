@@ -1,16 +1,19 @@
 using ExpenseTracker.Data.Repository.IRepository;
+using ExpenseTracker.Services;
 using Microsoft.AspNetCore.Mvc;
 using ExpenseTracker.Models;
-
 
 namespace ExpenseTracker.Controllers
 {
     public class DashboardController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        public DashboardController(IUnitOfWork unitOfWork)
+        private readonly ICurrencyConversionService _currencyService;
+
+        public DashboardController(IUnitOfWork unitOfWork, ICurrencyConversionService currencyService)
         {
             _unitOfWork = unitOfWork;
+            _currencyService = currencyService;
         }
 
         public IActionResult Index()
@@ -18,12 +21,17 @@ namespace ExpenseTracker.Controllers
             return View();
         }
 
-        
+
         [HttpGet]
-        public IActionResult GetDashboardData(string dateRange = "7days")
+        public async Task<IActionResult> GetDashboardData(string dateRange = "7days")
         {
             DateTime StartDate = DateTime.Today.AddDays(-6);
             DateTime EndDate = DateTime.Today;
+
+            // Currency to display everything in — driven by the CURRENT culture,
+            // regardless of what culture was active when each transaction was entered.
+            string targetCurrency = _currencyService.GetCurrencyCode(System.Globalization.CultureInfo.CurrentCulture.Name);
+
             int rangeEnd = 7;
 
             switch (dateRange?.ToLower())
@@ -46,10 +54,27 @@ namespace ExpenseTracker.Controllers
                 .GetRange(y => y.Date >= StartDate && y.Date <= EndDate, "Category")
                 .ToList();
 
+            // Convert every transaction's amount into targetCurrency BEFORE any
+            // aggregation happens. Each transaction's original currency comes from
+            // the CultureCode that was stamped on it when it was created (see
+            // Transaction model + Create action changes noted separately).
+            var convertedAmounts = new Dictionary<int, decimal>();
+            foreach (var t in selectedTransactions)
+            {
+                string sourceCurrency = _currencyService.GetCurrencyCode(t.CultureCode ?? "en-US");
+                convertedAmounts[t.TransactionId] =
+                    await _currencyService.ConvertAsync(t.Amount, sourceCurrency, targetCurrency);
+            }
 
-            int totalIncome = selectedTransactions.Where(t => t.Category.Type == "Income").Sum(t => t.Amount);
-            int totalExpense = selectedTransactions.Where(t => t.Category.Type == "Expense").Sum(t => t.Amount);
-            int balance = totalIncome - totalExpense;
+            decimal totalIncome = selectedTransactions
+                .Where(t => t.Category.Type == "Income")
+                .Sum(t => convertedAmounts[t.TransactionId]);
+
+            decimal totalExpense = selectedTransactions
+                .Where(t => t.Category.Type == "Expense")
+                .Sum(t => convertedAmounts[t.TransactionId]);
+
+            decimal balance = totalIncome - totalExpense;
 
             // doughnut chart
             var expenseChartData = selectedTransactions
@@ -57,10 +82,10 @@ namespace ExpenseTracker.Controllers
                 .GroupBy(t => t.Category.CategoryId)
                 .Select(k => new {
                     categoryTitleWithIcon = k.First().Category.Icon + " " + k.First().Category.Title,
-                    amount = k.Sum(j => j.Amount),
-                    formattedAmount = k.Sum(j => j.Amount).ToString("c0")
+                    amount = k.Sum(j => convertedAmounts[j.TransactionId]),
+                    formattedAmount = k.Sum(j => convertedAmounts[j.TransactionId]).ToString("c0")
                 })
-                .OrderBy(t=> t.amount)
+                .OrderBy(t => t.amount)
                 .ToList();
 
             // spline chart Income vs Expense
@@ -71,7 +96,7 @@ namespace ExpenseTracker.Controllers
                 .Select(k => new SplineChartData()
                 {
                     day = k.First().Date.ToString("dd-MMM"),
-                    income = k.Sum(l => l.Amount),
+                    income = k.Sum(l => convertedAmounts[l.TransactionId]),
                 }).ToList();
 
             // Expense
@@ -81,27 +106,30 @@ namespace ExpenseTracker.Controllers
                 .Select(k => new SplineChartData()
                 {
                     day = k.First().Date.ToString("dd-MMM"),
-                    expense = k.Sum(l => l.Amount),
+                    expense = k.Sum(l => convertedAmounts[l.TransactionId]),
                 }).ToList();
 
             // Combine Income and Expense by date
             string[] Dates = Enumerable.Range(0, rangeEnd)
-            .Select(i => StartDate.AddDays(i).ToString("dd-MMM"))
-            .ToArray();
+                .Select(i => StartDate.AddDays(i).ToString("dd-MMM"))
+                .ToArray();
 
             var SplineChartData = from day in Dates
                 join income in IncomeSummary on day equals income.day into dayIncomeJoined
                 from income in dayIncomeJoined.DefaultIfEmpty()
                 join expense in ExpenseSummary on day equals expense.day into expenseJoined
                 from expense in expenseJoined.DefaultIfEmpty()
-                select(new
+                select (new
                 {
                     day = day,
-                    income = income == null? 0: income.income,
-                    expense = expense == null? 0: expense.expense
+                    income = income == null ? 0 : income.income,
+                    expense = expense == null ? 0 : expense.expense
                 });
 
             // Recent Transactions
+            // Note: these are shown in their ORIGINAL currency/amount, not converted.
+            // If you want recent-transaction amounts converted too, apply the same
+            // per-transaction conversion used above before returning them.
             var RecentTransactions = _unitOfWork.Transaction.GetAll("Category")
                 .OrderByDescending(j => j.Date)
                 .Take(5)
@@ -129,7 +157,7 @@ namespace ExpenseTracker.Controllers
     public class SplineChartData
     {
         public string day;
-        public int income;
-        public int expense;
+        public decimal income;
+        public decimal expense;
     }
 }

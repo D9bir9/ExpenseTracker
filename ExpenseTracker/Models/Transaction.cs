@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -19,6 +20,7 @@ namespace ExpenseTracker.Models
         [Column(TypeName = "nvarchar(75)")]
         public string? Note { get; set; }
         public DateTime Date { get; set; } = DateTime.Now;
+        public string CultureCode { get; set; } = System.Globalization.CultureInfo.CurrentCulture.Name;// e.g. "en-US", "en-GB" — set at creation time
 
         [NotMapped]
         public string? CategoryTitleWithIcon {
@@ -32,7 +34,7 @@ namespace ExpenseTracker.Models
         public string? FormattedAmount {
             get
             {
-                return (Category == null || Category.Type == "Expense"? "-" : "+") +Amount.ToString("c0");
+                return (Category == null || Category.Type == "Expense"? "-" : "+") +Amount.ToString("c0",CultureInfo.CreateSpecificCulture(CultureCode!));
             } 
         }
     }

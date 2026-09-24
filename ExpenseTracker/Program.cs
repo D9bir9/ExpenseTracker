@@ -1,6 +1,7 @@
 using ExpenseTracker.Data;
 using ExpenseTracker.Data.Repository.IRepository;
 using ExpenseTracker.Data.Repository.Repositories;
+using ExpenseTracker.Services;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +13,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient<ICurrencyConversionService, CurrencyConversionService>();
 
 Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1JAaF5cX2pCd1p/TH5YfUNzdUVEY1ZUTXxaS1ZhSXxVdkxhW39ZcnxRQmNYUkR9XEY=");
 
