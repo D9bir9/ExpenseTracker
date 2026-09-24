@@ -34,8 +34,20 @@ namespace ExpenseTracker.Models
         public string? FormattedAmount {
             get
             {
-                return (Category == null || Category.Type == "Expense"? "-" : "+") +Amount.ToString("c0",CultureInfo.CreateSpecificCulture(CultureCode!));
-            } 
+                CultureInfo culture;
+                try
+                {
+                    culture = string.IsNullOrWhiteSpace(CultureCode)
+                        ? CultureInfo.CurrentCulture
+                        : CultureInfo.CreateSpecificCulture(CultureCode);
+                }
+                catch (CultureNotFoundException)
+                {
+                    culture = CultureInfo.CurrentCulture;
+                }
+
+                return (Category == null || Category.Type == "Expense" ? "-" : "+") + Amount.ToString("c0", culture);
+            }
         }
     }
 }
