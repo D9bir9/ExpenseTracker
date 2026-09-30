@@ -46,6 +46,11 @@ namespace ExpenseTracker.Controllers
                 ModelState.AddModelError(nameof(Category.Title), "Please enter a category name.");
             }
 
+            if (obj.MonthlyBudgetLimit < 0)
+            {
+                ModelState.AddModelError(nameof(Category.MonthlyBudgetLimit), "Monthly budget cannot be negative.");
+            }
+
             if (ModelState.IsValid)
             {
                 if(obj.CategoryId == 0)

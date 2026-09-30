@@ -18,10 +18,7 @@
     {
         new { Value = "en-US", Text = "USD - $" },
         new { Value = "en-GB", Text = "GBP - £" },
-        new { Value = "fr-FR", Text = "FR EUR - €" },
-        new { Value = "de-DE", Text = "DE EURO - €" },
-        new { Value = "ja-JP", Text = "JPY - ¥" },
-        new { Value = "en-NG", Text = "NGN - ₦"}
+        new { Value = "en-NG", Text = "NGN - ₦" }
     };
 }
 
@@ -30,25 +27,22 @@
         <h3 class="fw-bold m-0">Dashboard</h3>
     </div>
 
-    <div class="d-flex flex-row">
-        <div class="mx-5">
+    <div class="d-flex flex-row align-items-center gap-3">
+        <a href="/Budget" class="btn btn-sm btn-outline-light">Budget Targets</a>
+
+        <div style="width: 220px;">
             <form id="cultureForm" asp-controller="Culture" asp-action="SetCulture" method="post"
                 asp-route-returnUrl="@Context.Request.Path">
-                
-                <div style="width: 220px;">
-                    <!-- Added name="culture" attribute below -->
-                    <ejs-dropdownlist id="cultureDropdown" 
-                                    name="culture" 
-                                    dataSource="@cultures" 
-                                    value="@currentCulture"
-                                    change="onCultureChange">
-                        <e-dropdownlist-fields text="Text" value="Value"></e-dropdownlist-fields>
-                    </ejs-dropdownlist>
-                </div>
+                <ejs-dropdownlist id="cultureDropdown"
+                                name="culture"
+                                dataSource="@cultures"
+                                value="@currentCulture"
+                                change="onCultureChange">
+                    <e-dropdownlist-fields text="Text" value="Value"></e-dropdownlist-fields>
+                </ejs-dropdownlist>
             </form>
         </div>
 
-        <!-- Restricts the dropdown to a clean, non-obtrusive layout width -->
         <div style="width: 220px;">
             <ejs-dropdownlist id="dateRangePicker" 
                             dataSource="@dateOptions" 
@@ -103,6 +97,92 @@
     </div>
 </div>
 
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="d-flex flex-row widget summary budget-limit">
+            <div class="d-flex flex-column justify-content-center p-5">
+                <i class="fa-solid @currencyIcon fa-2xl"></i>
+            </div>
+            <div class="d-flex flex-column m-auto py-3">
+                <span class="lead">Monthly Budget</span>
+                <h1 id="totalBudget" class="display-6 fw-bold">0</h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="d-flex flex-row widget summary budget-spent">
+            <div class="d-flex flex-column justify-content-center p-5">
+                <i class="fa-solid fa-wallet fa-2xl"></i>
+            </div>
+            <div class="d-flex flex-column m-auto py-3">
+                <span class="lead">Spent Against Targets</span>
+                <h1 id="budgetSpent" class="display-6 fw-bold">0</h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="d-flex flex-row widget summary budget-remaining">
+            <div class="d-flex flex-column justify-content-center p-5">
+                <i class="fa-solid fa-piggy-bank fa-2xl"></i>
+            </div>
+            <div class="d-flex flex-column m-auto py-3">
+                <span class="lead">Remaining</span>
+                <h1 id="budgetRemaining" class="display-6 fw-bold">0</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="widget p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Budget vs Actual</h5>
+                <span id="budgetWarnings" class="badge bg-warning text-dark">0 warnings</span>
+            </div>
+
+            <div class="mb-3">
+                <div class="d-flex justify-content-between small text-muted mb-1">
+                    <span>Total budget remaining</span>
+                    <span id="budgetRemainingText">0</span>
+                </div>
+                <div class="progress" style="height: 12px;">
+                    <div id="budgetRemainingBar" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="fw-semibold mb-0">Spending this month vs last month</h6>
+                    <span id="budgetMonthComparison" class="small text-muted">Loading comparison...</span>
+                </div>
+                <ejs-chart id="month-comparison-chart" height="220px" palettes="@(new string[]{"#0e8d76", "#cb9b00"})">
+                    <e-chart-primaryxaxis valueType="Category">
+                        <e-majorgridlines width="0"></e-majorgridlines>
+                        <e-majorticklines width="0"></e-majorticklines>
+                    </e-chart-primaryxaxis>
+                    <e-chart-primaryyaxis labelFormat="c0">
+                        <e-majorgridlines width="1" color="#cbd5e1" dashArray="3,5"></e-majorgridlines>
+                        <e-majorticklines width="0"></e-majorticklines>
+                    </e-chart-primaryyaxis>
+                    <e-chart-chartarea>
+                        <e-chartarea-border width="0"></e-chartarea-border>
+                    </e-chart-chartarea>
+                    <e-series-collection>
+                        <e-series xName="period" yName="amount" name="Spending" width="0.6"
+                                  type="@Syncfusion.EJ2.Charts.ChartSeriesType.Column"></e-series>
+                    </e-series-collection>
+                    <e-chart-tooltipsettings enable></e-chart-tooltipsettings>
+                </ejs-chart>
+            </div>
+
+            <div id="budgetStatusList"></div>
+        </div>
+    </div>
+</div>
+
 @* doughnut chart and spline chart *@
 <div class="row mb-4">
     <div class="col-4">
@@ -118,7 +198,7 @@
                         </e-accumulation-series>
                     </e-accumulation-series-collection>
                     <e-accumulationchart-legendsettings position="Top" toggleVisibility=false>
-                        <e-legendsettings-textstyle color="#fff" size="1rem"></e-legendsettings-textstyle>
+                        <e-legendsettings-textstyle color="#475569" size="1rem"></e-legendsettings-textstyle>
                     </e-accumulationchart-legendsettings>
                     <e-accumulationchart-tooltipsettings enable></e-accumulationchart-tooltipsettings>
                 </ejs-accumulationchart>
@@ -135,7 +215,7 @@
                         <e-majorticklines width="0"></e-majorticklines>
                     </e-chart-primaryxaxis>
                     <e-chart-primaryyaxis>
-                        <e-majorgridlines width="1" color="#32414d" dashArray="3,5"></e-majorgridlines>
+                        <e-majorgridlines width="1" color="#cbd5e1" dashArray="3,5"></e-majorgridlines>
                         <e-majorticklines width="0"></e-majorticklines>
                         <e-linestyle width="0"></e-linestyle>
                     </e-chart-primaryyaxis>
@@ -149,7 +229,7 @@
                         type="@Syncfusion.EJ2.Charts.ChartSeriesType.Spline"></e-series>
                     </e-series-collection>
                     <e-chart-legendsettings position="Top" alignment="Far" toggleVisibility=false>
-                        <e-legendsettings-textstyle color="#fff" size="1rem"></e-legendsettings-textstyle>
+                        <e-legendsettings-textstyle color="#475569" size="1rem"></e-legendsettings-textstyle>
                     </e-chart-legendsettings>
                     <e-chart-tooltipsettings enable shared></e-chart-tooltipsettings>
                 </ejs-chart>
@@ -177,9 +257,37 @@
         </div>
     </div>
     <div class="col-md-6">
-        <div class="widget h-100">
-            <div class="d-flex justify-content-center align-items-center h-100">
-                <span><i class="fa-solid fa-plus fa-2xl"></i>Widget</span>
+        <div class="widget chart h-100">
+            <div class="title p-4">
+                <h5 class="fw-bold">Monthly budget vs spending</h5>
+                <div id="budgetChartEmpty" class="text-muted py-5 text-center" hidden>
+                    Set category targets to compare your monthly spending.
+                </div>
+                <div id="budgetChartContainer">
+                    <ejs-chart id="budget-chart" palettes="@(new string[]{"#0e8d76", "#cb9b00"})">
+                        <e-chart-primaryxaxis valueType="Category">
+                            <e-majorgridlines width="0"></e-majorgridlines>
+                            <e-majorticklines width="0"></e-majorticklines>
+                        </e-chart-primaryxaxis>
+                        <e-chart-primaryyaxis labelFormat="c0">
+                            <e-majorgridlines width="1" color="#cbd5e1" dashArray="3,5"></e-majorgridlines>
+                            <e-majorticklines width="0"></e-majorticklines>
+                        </e-chart-primaryyaxis>
+                        <e-chart-chartarea>
+                            <e-chartarea-border width="0"></e-chartarea-border>
+                        </e-chart-chartarea>
+                        <e-series-collection>
+                            <e-series xName="categoryTitle" yName="spent" name="Spent" width="2"
+                                      type="@Syncfusion.EJ2.Charts.ChartSeriesType.Column"></e-series>
+                            <e-series xName="categoryTitle" yName="limit" name="Target" width="2"
+                                      type="@Syncfusion.EJ2.Charts.ChartSeriesType.Column"></e-series>
+                        </e-series-collection>
+                        <e-chart-legendsettings position="Top" alignment="Far" toggleVisibility=false>
+                            <e-legendsettings-textstyle color="#475569" size="1rem"></e-legendsettings-textstyle>
+                        </e-chart-legendsettings>
+                        <e-chart-tooltipsettings enable shared></e-chart-tooltipsettings>
+                    </ejs-chart>
+                </div>
             </div>
         </div>
     </div>
@@ -201,6 +309,99 @@
                 document.getElementById("totalIncome").innerText = data.totalIncome;
                 document.getElementById("totalExpense").innerText = data.totalExpense;
                 document.getElementById("balance").innerText = data.balance;
+                document.getElementById("totalBudget").innerText = data.budgetSummary.totalBudget;
+                document.getElementById("budgetSpent").innerText = data.budgetSummary.totalBudgetSpent;
+                document.getElementById("budgetRemaining").innerText = data.budgetSummary.totalBudgetRemaining;
+
+                var remainingPercent = Math.min(Math.max(data.budgetSummary.totalBudgetRemainingPercent || 0, 0), 100);
+                var remainingBar = document.getElementById('budgetRemainingBar');
+                var remainingText = document.getElementById('budgetRemainingText');
+                if (remainingBar) {
+                    remainingBar.style.width = remainingPercent + '%';
+                    remainingBar.className = 'progress-bar ' + (data.budgetSummary.totalBudgetRemaining < 0 ? 'bg-danger' : data.budgetSummary.totalBudgetRemaining > 0 ? 'bg-success' : 'bg-warning text-dark');
+                }
+                if (remainingText) {
+                    remainingText.innerText = data.budgetSummary.totalBudgetRemaining + ' left';
+                }
+
+                var monthComparison = document.getElementById('budgetMonthComparison');
+                if (monthComparison) {
+                    var change = data.budgetSummary.monthOverMonthChangeAmount;
+                    monthComparison.innerText = (change > 0 ? 'Up ' : change < 0 ? 'Down ' : 'No change ')
+                        + (change !== 0 ? data.budgetSummary.monthOverMonthChange : '')
+                        + (data.budgetSummary.monthOverMonthChangePercent == null
+                            ? (change > 0 ? ' · new spending' : '')
+                            : ' · ' + Math.abs(data.budgetSummary.monthOverMonthChangePercent).toFixed(1) + '%');
+                    monthComparison.className = 'fw-semibold ' + (change > 0 ? 'text-danger' : 'text-success');
+                }
+
+                var monthComparisonChart = document.getElementById('month-comparison-chart').ej2_instances[0];
+                if (monthComparisonChart) {
+                    monthComparisonChart.dataSource = [
+                        { period: 'Last month', amount: data.budgetSummary.lastMonthExpenseAmount },
+                        { period: 'This month', amount: data.budgetSummary.thisMonthExpenseAmount }
+                    ];
+                    monthComparisonChart.refresh();
+                }
+
+                document.getElementById("budgetWarnings").innerText = data.budgetSummary.warningCount + ' warnings';
+                document.getElementById("budgetWarnings").className = data.budgetSummary.warningCount > 0 ? 'badge bg-warning text-dark' : 'badge bg-success';
+
+                var budgetList = document.getElementById('budgetStatusList');
+                if (budgetList) {
+                    budgetList.replaceChildren();
+                    (data.budgetData || []).forEach(function (item) {
+                        var progress = Math.min(Math.max(item.progressPercent || 0, 0), 100);
+                        var status = !item.hasLimit ? 'No target set' : item.overBudget ? 'Over budget' : item.nearLimit ? 'Near limit' : 'On track';
+                        var statusClass = !item.hasLimit ? 'text-muted' : item.overBudget ? 'text-danger' : item.nearLimit ? 'budget-near-limit' : 'text-success';
+                        var progressClass = !item.hasLimit ? 'bg-secondary' : item.overBudget ? 'bg-danger' : item.nearLimit ? 'bg-warning' : 'bg-success';
+
+                        var row = document.createElement('div');
+                        row.className = 'mb-3';
+                        var heading = document.createElement('div');
+                        heading.className = 'd-flex justify-content-between align-items-center mb-1';
+                        var title = document.createElement('span');
+                        title.className = 'fw-semibold';
+                        title.textContent = item.categoryTitle;
+                        var amount = document.createElement('span');
+                        amount.className = statusClass;
+                        amount.textContent = item.hasLimit
+                            ? item.spentText + ' / ' + item.limitText
+                            : item.spentText + ' spent';
+                        heading.append(title, amount);
+
+                        var progressTrack = document.createElement('div');
+                        progressTrack.className = 'progress';
+                        progressTrack.style.height = '10px';
+                        progressTrack.setAttribute('aria-label', status + ' for ' + item.categoryTitle);
+                        var progressBar = document.createElement('div');
+                        progressBar.className = 'progress-bar ' + progressClass;
+                        progressBar.setAttribute('role', 'progressbar');
+                        progressBar.setAttribute('aria-valuenow', progress);
+                        progressBar.setAttribute('aria-valuemin', '0');
+                        progressBar.setAttribute('aria-valuemax', '100');
+                        progressBar.style.width = progress + '%';
+                        progressTrack.append(progressBar);
+
+                        var details = document.createElement('div');
+                        details.className = 'd-flex justify-content-between mt-1 small ' + statusClass;
+                        var statusLabel = document.createElement('span');
+                        statusLabel.className = 'badge ' + (item.overBudget ? 'bg-danger' : item.nearLimit ? 'bg-warning text-dark' : item.hasLimit ? 'bg-success' : 'bg-secondary');
+                        statusLabel.textContent = status;
+                        var remaining = document.createElement('span');
+                        remaining.textContent = item.hasLimit ? Math.round(item.progressPercent) + '% used · ' + item.remainingText + ' left' : 'No target set';
+                        details.append(statusLabel, remaining);
+                        row.append(heading, progressTrack, details);
+                        budgetList.append(row);
+                    });
+
+                    if (!data.budgetData || data.budgetData.length === 0) {
+                        var emptyState = document.createElement('div');
+                        emptyState.className = 'text-muted';
+                        emptyState.textContent = 'No expense categories with budgets set yet.';
+                        budgetList.append(emptyState);
+                    }
+                }
 
                 // Dougnut Chart
                 var chartInstance = document.getElementById('doughnutchart').ej2_instances[0];
@@ -218,6 +419,26 @@
                     splineChartInstance.dataSource = data.splineData;
 
                     splineChartInstance.refresh();
+                }
+
+                var budgetChart = document.getElementById('budget-chart').ej2_instances[0];
+                var budgetChartContainer = document.getElementById('budgetChartContainer');
+                var budgetChartEmpty = document.getElementById('budgetChartEmpty');
+                var budgetTargets = (data.budgetData || []).filter(function (item) {
+                    return item.hasLimit;
+                });
+
+                if (budgetChart) {
+                    if (budgetTargets.length > 0) {
+                        budgetChartContainer.hidden = false;
+                        budgetChartEmpty.hidden = true;
+                        budgetChart.series[0].dataSource = budgetTargets;
+                        budgetChart.series[1].dataSource = budgetTargets;
+                        budgetChart.refresh();
+                    } else {
+                        budgetChartContainer.hidden = true;
+                        budgetChartEmpty.hidden = false;
+                    }
                 }
 
                 // Recent Transactions

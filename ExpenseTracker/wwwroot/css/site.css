@@ -24,8 +24,8 @@ html {
 
 body {
   margin-bottom: 60px;
-  background: linear-gradient(180deg, #0f1720 0%, #121d27 100%);
-  color: #edf3f8;
+  background: linear-gradient(180deg, #f8fafc 0%, #eef3f8 100%);
+  color: #1e293b;
   overflow: hidden;
 }
 
@@ -72,7 +72,7 @@ body {
 }
 
     .e-grid .e-gridcontent, .e-grid .e-table {
-        background-color: #1a222b;
+        background-color: #ffffff;
     }
 
     .e-grid .e-gridheader {
@@ -80,20 +80,20 @@ body {
         border-top-left-radius: 5px;
         border-top-right-radius: 5px;
         padding: 10px;
-        background-color: #222b33;
+        background-color: #f1f5f9;
     }
 
         .e-grid .e-gridheader .e-headercell {
-            background-color: #222b33;
+            background-color: #f1f5f9;
         }
 
     .e-grid .e-gridpager {
-        background-color: #1a222b;
+        background-color: #ffffff;
     }
 
     .e-grid .e-pagercontainer {
         border: none;
-        background-color: #1a222b;
+        background-color: #ffffff;
     }
 
     .e-grid .e-content table {
@@ -101,13 +101,13 @@ body {
     }
 
 .e-pagercontainer .e-icons {
-    background-color: #1a222b;
+    background-color: #ffffff;
     border: none !important;
 }
 
 .e-pager .e-numericitem {
-    color: #adb5bd;
-    background-color: #1a222b;
+    color: #475569;
+    background-color: #ffffff;
     padding: 15px !important;
 }
 
@@ -116,17 +116,17 @@ body {
     }
 
     .e-pager .e-numericitem:hover {
-        color: #fff;
+        color: #0f172a;
     }
 
     .e-pager .e-numericitem.e-currentitem {
-        color: #fff;
+        color: #0f172a;
         border: none !important;
-        background-color: #31373d;
+        background-color: #dbeafe;
     }
 
 .e-pager div.e-icons:not(.e-disable) {
-    color: #fff;
+    color: #334155;
     cursor: pointer;
     font-weight: bold;
 }
@@ -148,15 +148,15 @@ body {
 
 .custom-rbt-group label.e-btn{
   box-shadow: none !important;
-  border: 1px solid #fff;
-  background-color: rgb(34,43, 51);
-  color: #fff;
+  border: 1px solid #cbd5e1;
+  background-color: #f8fafc;
+  color: #334155;
 }
 
 .e-btn-group.custom-rbt-group input:checked + label.e-btn{
-  background-color: #fff;
-  color: #212b36;
-  border: 1px solid #fff;
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
 }
 
 /*Logo*/
@@ -189,7 +189,7 @@ body {
 
 #menu .e-menu-item a {
     width: 100%;
-    color: #dfe7ef;
+    color: #334155;
     font-weight: 400;
     padding: 9px 12px;
     box-sizing: border-box;
@@ -198,8 +198,8 @@ body {
 
 #menu .e-menu-item.e-active a,
 #menu .e-menu-item a:hover {
-    background: rgba(52, 211, 153, 0.12);
-    color: #d1fae5;
+    background: rgba(16, 185, 129, 0.12);
+    color: #047857;
 }
 
 #menu .e-anchor-wrap {
@@ -207,7 +207,7 @@ body {
 }
 
 #menu .e-menu-item .e-anchor-wrap span.e-menu-icon {
-    color: rgb(171, 163, 152);
+    color: #64748b;
 }
 
 #menu .e-menu-item.e-separator {
@@ -216,7 +216,7 @@ body {
     text-transform: uppercase;
     font-weight: bold;
     font-size: 13px;
-    color: #65da41;
+    color: #059669;
 }
 
 #menu .e-menu-item.e-separator:not(:first-child) {
@@ -239,7 +239,7 @@ img.profile-pic {
     display: flex;
     flex-direction: row;
     align-items: center;
-    background-color: rgba(72, 84, 95, 0.12);
+    background-color: #f1f5f9;
     padding: 16px 20px;
     border-radius: 12px;
     cursor: pointer;
@@ -252,11 +252,11 @@ img.profile-pic {
 
 /*SideBar*/
 #sidebar {
-    background: rgba(15, 23, 32, 0.96);
-    border-right: 1px solid rgba(148, 163, 184, 0.18);
+    background: rgba(255, 255, 255, 0.96);
+    border-right: 1px solid #e2e8f0;
     padding: 10px 20px;
     overflow: hidden;
-    box-shadow: 0 12px 30px rgba(15, 23, 32, 0.20);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
 }
 
     #sidebar .e-menu-wrapper {
@@ -273,7 +273,7 @@ img.profile-pic {
 
     #sidebar-toggler:hover {
         cursor: pointer;
-        background-color: #48545f14;
+        background-color: #f1f5f9;
         transform: scale(1.05) translateZ(0px);
     }
 
@@ -321,11 +321,11 @@ img.profile-pic {
 /* Widget */
 .widget {
   border-radius: 1rem;
-  background: linear-gradient(180deg, #1a2731 0%, #17232d 100%);
-  box-shadow: 0 8px 16px rgba(15, 23, 32, 0.18);
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
 }
 .widget.summary > div:first-child {
-        background: rgba(148, 163, 184, 0.08);
+        background: #f1f5f9;
         padding: 1rem;
         border-top-left-radius: 1rem;
         border-bottom-left-radius: 1rem;
@@ -336,50 +336,74 @@ img.profile-pic {
 }
 
 .widget.income > div:first-child {
-    color: #34d399;
+    color: #059669;
 }
 
 .widget.expense > div:first-child {
-    color: #f87171;
+    color: #dc2626;
 }
 
 .widget.balance > div:first-child {
-    color: #60a5fa;
+    color: #2563eb;
+}
+
+.widget.budget-limit > div:first-child {
+    color: #7c3aed;
+}
+
+.widget.budget-spent > div:first-child {
+    color: #d97706;
+}
+
+.widget.budget-remaining > div:first-child {
+    color: #16a34a;
 }
 
 .widget.chart {
     padding: 5px;
 }
 
+.progress {
+    background-color: #e2e8f0;
+}
+
+.progress-bar {
+    border-radius: 999px;
+}
+
+.budget-near-limit {
+    color: #a16207 !important;
+}
+
 .btn-outline-light {
-    border-color: rgba(148, 163, 184, 0.4);
-    color: #edf3f8;
+    border-color: #94a3b8;
+    color: #334155;
 }
 
 .btn-outline-light:hover {
-    background: rgba(52, 211, 153, 0.12);
-    border-color: rgba(52, 211, 153, 0.7);
-    color: #d1fae5;
+    background: #d1fae5;
+    border-color: #34d399;
+    color: #065f46;
 }
 
 .form-select, .form-control {
-    background-color: rgba(15, 23, 32, 0.8);
-    color: #edf3f8;
-    border-color: rgba(148, 163, 184, 0.25);
+    background-color: #ffffff;
+    color: #1e293b;
+    border-color: #cbd5e1;
 }
 
 .form-select option {
-    background-color: #17232d;
-    color: #edf3f8;
+    background-color: #ffffff;
+    color: #1e293b;
 }
 
 .text-muted {
-    color: #a8b5c3 !important;
+    color: #64748b !important;
 }
 
 .app-brand {
     font-weight: 700;
     letter-spacing: 0.08rem;
     text-transform: uppercase;
-    color: #d1fae5;
+    color: #047857;
 }

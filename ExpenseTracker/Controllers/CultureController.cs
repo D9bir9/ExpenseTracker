@@ -11,6 +11,12 @@ namespace ExpenseTracker.Controllers
         [HttpPost]
         public IActionResult SetCulture(string culture, string returnUrl)
         {
+            var allowedCultures = new[] { "en-US", "en-GB", "en-NG" };
+            if (!allowedCultures.Contains(culture, StringComparer.OrdinalIgnoreCase))
+            {
+                culture = "en-US";
+            }
+
             Response.Cookies.Append(
                 CookieRequestCultureProvider.DefaultCookieName,
                 CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),

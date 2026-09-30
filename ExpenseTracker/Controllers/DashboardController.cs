@@ -58,17 +58,21 @@ namespace ExpenseTracker.Controllers
                 .GetRange(y => y.Date >= StartDate && y.Date <= EndDate, "Category")
                 .ToList();
 
+            DateTime monthStart = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            DateTime previousMonthStart = monthStart.AddMonths(-1);
+            DateTime monthEnd = monthStart.AddMonths(1).AddTicks(-1);
+            var monthTransactions = _unitOfWork.Transaction.GetRange(
+                    t => t.Date >= previousMonthStart && t.Date <= monthEnd,
+                    "Category")
+                .ToList();
+
             // Convert every transaction's amount into targetCurrency BEFORE any
             // aggregation happens. Each transaction's original currency comes from
             // the CultureCode that was stamped on it when it was created (see
             // Transaction model + Create action changes noted separately).
-            var convertedAmounts = new Dictionary<int, decimal>();
-            foreach (var t in selectedTransactions)
-            {
-                string sourceCurrency = _currencyService.GetCurrencyCode(t.CultureCode ?? "en-US");
-                convertedAmounts[t.TransactionId] =
-                    await _currencyService.ConvertAsync(t.Amount, sourceCurrency, targetCurrency);
-            }
+            var convertedAmounts = await ConvertTransactionsAsync(
+                selectedTransactions.Concat(monthTransactions).DistinctBy(t => t.TransactionId).ToList(),
+                targetCurrency);
 
             decimal totalIncome = selectedTransactions
                 .Where(t => t.Category.Type == "Income")
@@ -130,10 +134,63 @@ namespace ExpenseTracker.Controllers
                     expense = expense == null ? 0 : expense.expense
                 });
 
+            // Budget tracking for the current month.
+            var categories = _unitOfWork.Category.GetAll("")
+                .Where(c => c.Type == "Expense")
+                .ToList();
+
+            var budgetData = new List<DashboardBudgetData>();
+            foreach (var category in categories)
+            {
+                var categoryTransactions = monthTransactions.Where(t => t.CategoryId == category.CategoryId).ToList();
+                var spent = categoryTransactions
+                    .Where(t => t.Date >= monthStart && t.Date <= monthEnd)
+                    .Sum(t => convertedAmounts[t.TransactionId]);
+                var lastMonthSpent = categoryTransactions
+                    .Where(t => t.Date >= previousMonthStart && t.Date < monthStart)
+                    .Sum(t => convertedAmounts[t.TransactionId]);
+                var remaining = category.MonthlyBudgetLimit - spent;
+                var progressPercent = category.MonthlyBudgetLimit > 0
+                    ? Math.Min((spent / category.MonthlyBudgetLimit) * 100m, 100m)
+                    : 0m;
+
+                budgetData.Add(new DashboardBudgetData
+                {
+                    CategoryTitle = category.TitleWithIcon ?? category.Title,
+                    Limit = category.MonthlyBudgetLimit,
+                    Spent = spent,
+                    LastMonthSpent = lastMonthSpent,
+                    Remaining = remaining,
+                    HasLimit = category.MonthlyBudgetLimit > 0,
+                    OverBudget = category.MonthlyBudgetLimit > 0 && spent > category.MonthlyBudgetLimit,
+                    NearLimit = category.MonthlyBudgetLimit > 0 && spent <= category.MonthlyBudgetLimit && spent >= category.MonthlyBudgetLimit * 0.8m,
+                    ProgressPercent = progressPercent,
+                    LimitText = category.MonthlyBudgetLimit.ToString("C0"),
+                    SpentText = spent.ToString("C0"),
+                    LastMonthSpentText = lastMonthSpent.ToString("C0"),
+                    RemainingText = remaining.ToString("C0")
+                });
+            }
+
+            budgetData = budgetData
+                .Where(x => x.Limit > 0 || x.Spent > 0 || x.LastMonthSpent > 0)
+                .OrderByDescending(x => x.OverBudget)
+                .ThenByDescending(x => x.NearLimit)
+                .ThenByDescending(x => x.Spent)
+                .ToList();
+
+            decimal totalBudget = budgetData.Sum(x => x.Limit);
+            decimal totalBudgetSpent = budgetData.Where(x => x.Limit > 0).Sum(x => x.Spent);
+            decimal totalExpenseSpent = budgetData.Sum(x => x.Spent);
+            decimal totalBudgetRemaining = totalBudget - totalBudgetSpent;
+            decimal totalBudgetRemainingPercent = totalBudget > 0 ? (totalBudgetRemaining / totalBudget) * 100m : 0m;
+            decimal lastMonthTotalSpent = budgetData.Sum(x => x.LastMonthSpent);
+            decimal monthOverMonthChange = totalExpenseSpent - lastMonthTotalSpent;
+            decimal? monthOverMonthChangePercent = lastMonthTotalSpent > 0
+                ? (monthOverMonthChange / lastMonthTotalSpent) * 100m
+                : null;
+
             // Recent Transactions
-            // Note: these are shown in their ORIGINAL currency/amount, not converted.
-            // If you want recent-transaction amounts converted too, apply the same
-            // per-transaction conversion used above before returning them.
             var RecentTransactions = _unitOfWork.Transaction.GetAll("Category")
                 .OrderByDescending(j => j.Date)
                 .Take(5)
@@ -144,12 +201,50 @@ namespace ExpenseTracker.Controllers
                 totalIncome = totalIncome.ToString("C0"),
                 totalExpense = totalExpense.ToString("C0"),
                 balance = balance.ToString("C0"),
+                budgetSummary = new
+                {
+                    totalBudget = totalBudget.ToString("C0"),
+                    totalBudgetSpent = totalBudgetSpent.ToString("C0"),
+                    totalExpenseSpent = totalExpenseSpent.ToString("C0"),
+                    totalBudgetRemaining = totalBudgetRemaining.ToString("C0"),
+                    totalBudgetRemainingPercent = totalBudgetRemainingPercent,
+                    lastMonthSpent = lastMonthTotalSpent.ToString("C0"),
+                    thisMonthExpenseAmount = totalExpenseSpent,
+                    lastMonthExpenseAmount = lastMonthTotalSpent,
+                    monthOverMonthChange = monthOverMonthChange.ToString("C0"),
+                    monthOverMonthChangeAmount = monthOverMonthChange,
+                    monthOverMonthChangePercent = monthOverMonthChangePercent,
+                    warningCount = budgetData.Count(x => x.OverBudget)
+                },
+                budgetData = budgetData,
                 chartData = expenseChartData,
                 splineData = SplineChartData,
                 recentTransactionData = RecentTransactions
             });
         }
 
+        private async Task<Dictionary<int, decimal>> ConvertTransactionsAsync(
+            IReadOnlyCollection<Transaction> transactions,
+            string targetCurrency)
+        {
+            var currencies = transactions
+                .Select(t => _currencyService.GetCurrencyCode(t.CultureCode ?? "en-US"))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Where(currency => !string.Equals(currency, targetCurrency, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            await Task.WhenAll(currencies.Select(currency =>
+                _currencyService.ConvertAsync(1m, currency, targetCurrency)));
+
+            var amounts = await Task.WhenAll(transactions.Select(async transaction =>
+            {
+                var sourceCurrency = _currencyService.GetCurrencyCode(transaction.CultureCode ?? "en-US");
+                var amount = await _currencyService.ConvertAsync(transaction.Amount, sourceCurrency, targetCurrency);
+                return (transaction.TransactionId, amount);
+            }));
+
+            return amounts.ToDictionary(x => x.TransactionId, x => x.amount);
+        }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
@@ -163,5 +258,22 @@ namespace ExpenseTracker.Controllers
         public string day;
         public decimal income;
         public decimal expense;
+    }
+
+    public class DashboardBudgetData
+    {
+        public string CategoryTitle { get; set; } = string.Empty;
+        public decimal Limit { get; set; }
+        public decimal Spent { get; set; }
+        public decimal LastMonthSpent { get; set; }
+        public decimal Remaining { get; set; }
+        public bool HasLimit { get; set; }
+        public bool OverBudget { get; set; }
+        public bool NearLimit { get; set; }
+        public decimal ProgressPercent { get; set; }
+        public string LimitText { get; set; } = string.Empty;
+        public string SpentText { get; set; } = string.Empty;
+        public string LastMonthSpentText { get; set; } = string.Empty;
+        public string RemainingText { get; set; } = string.Empty;
     }
 }

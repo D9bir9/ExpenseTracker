@@ -21,15 +21,25 @@ namespace ExpenseTracker.Services
         {
             if (string.IsNullOrWhiteSpace(cultureName))
                 return "USD";
- 
+
+            var allowedCurrencies = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["en-US"] = "USD",
+                ["en-GB"] = "GBP",
+                ["en-NG"] = "NGN"
+            };
+
+            if (allowedCurrencies.TryGetValue(cultureName.Trim(), out var allowedCurrency))
+                return allowedCurrency;
+
             try
             {
                 var region = new RegionInfo(cultureName);
-                return region.ISOCurrencySymbol; // e.g. "USD", "GBP", "EUR"
+                var isoCurrency = region.ISOCurrencySymbol;
+                return isoCurrency is "USD" or "GBP" or "NGN" ? isoCurrency : "USD";
             }
             catch (ArgumentException)
             {
-                // Unknown/neutral culture name (e.g. "en") — fall back to a sensible default.
                 return "USD";
             }
         }
@@ -46,26 +56,33 @@ namespace ExpenseTracker.Services
         private async Task<decimal> GetExchangeRateAsync(string fromCurrency, string toCurrency)
         {
             string cacheKey = $"fxrate:{fromCurrency}:{toCurrency}";
- 
+
             if (_cache.TryGetValue(cacheKey, out decimal cachedRate))
                 return cachedRate;
- 
-            // Frankfurter (https://frankfurter.dev) is a free, no-API-key exchange rate
-            // service backed by European Central Bank reference rates.
-            // Swap this out for a paid provider if you need more currencies or intraday rates.
-            var url = $"https://api.frankfurter.app/latest?from={fromCurrency}&to={toCurrency}";
- 
+
+            // open.er-api.com supports NGN and the currencies used in this budget app.
+            var url = $"https://open.er-api.com/v6/latest/{fromCurrency}";
+
             using var response = await _httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();
- 
+
             using var stream = await response.Content.ReadAsStreamAsync();
             using var doc = await JsonDocument.ParseAsync(stream);
- 
-            decimal rate = doc.RootElement
-                .GetProperty("rates")
-                .GetProperty(toCurrency)
-                .GetDecimal();
- 
+
+            if (doc.RootElement.TryGetProperty("result", out var result) &&
+                result.GetString() == "error")
+            {
+                throw new InvalidOperationException("Exchange rate service returned an error.");
+            }
+
+            if (!doc.RootElement.TryGetProperty("rates", out var rates) ||
+                !rates.TryGetProperty(toCurrency, out var rateElement))
+            {
+                throw new InvalidOperationException($"Exchange rate unavailable for {fromCurrency} -> {toCurrency}.");
+            }
+
+            decimal rate = rateElement.GetDecimal();
+
             _cache.Set(cacheKey, rate, CacheDuration);
             return rate;
         }

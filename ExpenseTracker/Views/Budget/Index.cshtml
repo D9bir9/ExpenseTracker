@@ -1,0 +1,191 @@
+@model ExpenseTracker.Controllers.BudgetOverview
+@{
+    ViewData["PageTitle"] = "Budget Targets";
+    ViewData["PageActionText"] = "Manage Categories";
+    ViewData["PageActionUrl"] = "/Category";
+    var changeClass = Model.MonthOverMonthChange <= 0 ? "text-success" : "text-danger";
+}
+
+@if (TempData["BudgetError"] is string budgetError)
+{
+    <div class="alert alert-danger" role="alert">@budgetError</div>
+}
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="widget summary budget-limit p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="lead">Total Budget</span>
+                <i class="fa-solid fa-circle-dollar-to-slot"></i>
+            </div>
+            <h3 class="fw-bold mb-0">@Model.TotalBudget.ToString("C0")</h3>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="widget summary budget-spent p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="lead">Spent</span>
+                <i class="fa-solid fa-wallet"></i>
+            </div>
+            <h3 class="fw-bold mb-0">@Model.TotalSpent.ToString("C0")</h3>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="widget summary budget-remaining p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="lead">Remaining</span>
+                <i class="fa-solid fa-piggy-bank"></i>
+            </div>
+            <h3 class="fw-bold mb-0">@Model.TotalRemaining.ToString("C0")</h3>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="widget p-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                <div>
+                    <h5 class="fw-bold mb-1">Monthly spending</h5>
+                    <span class="small text-muted">@Model.MonthLabel vs @DateTime.Today.AddMonths(-1).ToString("MMM yyyy")</span>
+                </div>
+            <div class="text-end small @changeClass">
+                @(Model.MonthOverMonthChange > 0 ? "Up " : Model.MonthOverMonthChange < 0 ? "Down " : "No change ")
+                @if (Model.MonthOverMonthChange != 0)
+                {
+                    @Model.MonthOverMonthChange.ToString("C0")
+                }
+                @if (Model.MonthOverMonthChangePercent.HasValue)
+                {
+                    <span>(@Math.Abs(Model.MonthOverMonthChangePercent.Value).ToString("0.#")%)</span>
+                }
+                else if (Model.TotalSpent > 0)
+                {
+                    <span>(New spending)</span>
+                }
+            </div>
+            </div>
+
+            <ejs-chart id="budget-month-comparison" height="240px" palettes="@(new string[]{"#a4b219", "#0e8d76"})">
+            <e-chart-primaryxaxis valueType="Category">
+                <e-majorgridlines width="0"></e-majorgridlines>
+                <e-majorticklines width="0"></e-majorticklines>
+            </e-chart-primaryxaxis>
+            <e-chart-primaryyaxis labelFormat="c0">
+                <e-majorgridlines width="1" color="#cbd5e1" dashArray="3,5"></e-majorgridlines>
+                <e-majorticklines width="0"></e-majorticklines>
+            </e-chart-primaryyaxis>
+            <e-chart-chartarea>
+                <e-chartarea-border width="0"></e-chartarea-border>
+            </e-chart-chartarea>
+            <e-series-collection>
+                <e-series dataSource="@Model.MonthComparisonData" xName="Period" yName="Amount"
+                          name="Spending" type="@Syncfusion.EJ2.Charts.ChartSeriesType.Column"></e-series>
+            </e-series-collection>
+            <e-chart-tooltipsettings enable></e-chart-tooltipsettings>
+            </ejs-chart>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="widget p-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="fw-bold mb-0">Budget overview</h5>
+                <span class="small text-muted">@Model.MonthLabel</span>
+            </div>
+            <div class="progress" style="height: 12px;">
+                <div class="progress-bar @(Model.TotalRemaining >= 0 ? "bg-success" : "bg-danger")" role="progressbar" style="width: @(Math.Min(Math.Max(Math.Abs(Model.TotalRemainingPercent), 0M), 100M))%"></div>
+            </div>
+            <div class="d-flex justify-content-between mt-2 small text-muted">
+                <span>@Model.TotalRemaining.ToString("C0") left</span>
+                <span>@Model.TotalRemainingPercent.ToString("0.##")% of budget remaining</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form method="get" class="d-flex flex-wrap align-items-end gap-2 mb-3">
+    <div>
+        <label for="sortBy" class="form-label small text-muted mb-1">Sort budget categories</label>
+        <select id="sortBy" name="sortBy" class="form-select form-select-sm" onchange="this.form.submit()">
+            <option value="over-budget" selected="@(Model.SortBy == "over-budget")">Over budget first</option>
+            <option value="highest-spend" selected="@(Model.SortBy == "highest-spend")">Highest spending</option>
+            <option value="category" selected="@(Model.SortBy == "category")">Category name</option>
+        </select>
+    </div>
+</form>
+
+<div class="row g-3">
+    @foreach (var item in Model.Categories)
+    {
+        var statusClass = item.Status == "Over budget" ? "bg-danger" : item.Status == "Near limit" ? "bg-warning text-dark" : item.Status == "No limit set" ? "bg-secondary" : "bg-success";
+        var progressBarClass = item.Status == "Over budget" ? "bg-danger" : item.Status == "Near limit" ? "bg-warning text-dark" : item.Status == "No limit set" ? "bg-secondary" : "bg-success";
+        var remainingClass = item.Remaining < 0 ? "text-danger" : "text-success";
+        var monthlyChange = item.Spent - item.LastMonthSpent;
+        var categoryChangeClass = monthlyChange <= 0 ? "text-success" : "text-danger";
+
+        <div class="col-md-6 col-xl-4">
+            <div class="widget p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0">@item.CategoryTitle</h6>
+                    <span class="badge @statusClass">@item.Status</span>
+                </div>
+
+                <div class="d-flex justify-content-between small text-muted mb-2">
+                    <span>Spent</span>
+                    <span>@item.Spent.ToString("C0")</span>
+                </div>
+                <div class="d-flex justify-content-between small text-muted mb-3">
+                    <span>Limit</span>
+                    <span>@(item.Limit > 0 ? item.Limit.ToString("C0") : "No target")</span>
+                </div>
+
+                <div class="small @categoryChangeClass mb-3">
+                    vs last month: @(monthlyChange > 0 ? "+" : "")@monthlyChange.ToString("C0")
+                    <span class="text-muted">(@item.LastMonthSpent.ToString("C0") last month)</span>
+                </div>
+
+                <div class="progress mb-2" style="height: 10px;">
+                    <div class="progress-bar @progressBarClass" role="progressbar" style="width: @(Math.Min(Math.Max(item.ProgressPercent, 0m), 100m))%"></div>
+                </div>
+
+                @if (item.Limit > 0)
+                {
+                    <div class="d-flex justify-content-between small @remainingClass">
+                        <span>@(item.Remaining >= 0 ? "Remaining" : "Over")</span>
+                        <span>@item.Remaining.ToString("C0")</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="small text-muted">Set a target to track this category against a budget.</div>
+                }
+
+                <form asp-controller="Budget" asp-action="UpdateLimit" method="post" class="mt-3">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="categoryId" value="@item.CategoryId" />
+                    <input type="hidden" name="sortBy" value="@Model.SortBy" />
+                    <label for="budget-limit-@item.CategoryId" class="form-label small text-muted">Monthly target</label>
+                    <div class="input-group input-group-sm">
+                        <input id="budget-limit-@item.CategoryId" name="monthlyBudgetLimit" type="number" class="form-control"
+                               min="0" step="0.01" value="@item.Limit.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)"
+                               aria-label="Monthly target for @item.CategoryTitle" />
+                        <button type="submit" class="btn btn-outline-light">Save target</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+    @if (Model.Categories.Count == 0)
+    {
+        <div class="col-12">
+            <div class="widget p-4 text-center text-muted">
+                No expense categories yet. Create an expense category, then set its monthly target here.
+            </div>
+        </div>
+    }
+</div>

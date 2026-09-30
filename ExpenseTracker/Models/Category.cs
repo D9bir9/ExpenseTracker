@@ -23,6 +23,9 @@ namespace ExpenseTracker.Models
         [Column(TypeName = "nvarchar(10)")]
         public string Type { get; set; } = "Expense";
 
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal MonthlyBudgetLimit { get; set; }
+
         [NotMapped]
         public string? TitleWithIcon
         {

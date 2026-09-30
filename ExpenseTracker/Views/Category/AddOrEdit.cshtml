@@ -24,13 +24,16 @@
                     <ejs-textbox id="icon" placeholder="Icon" ejs-for="Icon" floatLabelType="Always"></ejs-textbox>
                     <span asp-validation-for="Icon" class="text-danger fs-6"></span>
                 </div>
+                <div class="mb-3">
+                    <ejs-numerictextbox id="monthlyBudgetLimit" placeholder="Monthly Budget Limit" ejs-for="MonthlyBudgetLimit" floatLabelType="Always" min=0 format="c2" value="@Model.MonthlyBudgetLimit"></ejs-numerictextbox>
+                </div>
 
                  <ejs-button id="submit" type="submit" cssClass="e-success" content="@(Model.CategoryId == 0? "Create" : "Update")"></ejs-button>
             </form>
         </div>
     </div>
     <div class="col-md-5">
-        <div class="widget h-100 d-flex justify-content-center align-items-center" style="background-color:#212b36">
+        <div class="widget h-100 d-flex justify-content-center align-items-center">
             <i class="fa-solid fa-shapes fa-2xl"></i>
         </div>
     </div>

@@ -20,6 +20,7 @@ namespace ExpenseTracker.Data.Repository.Repositories
                 categoryFromDb.Title = category.Title;
                 categoryFromDb.Icon = category.Icon;
                 categoryFromDb.Type = category.Type;
+                categoryFromDb.MonthlyBudgetLimit = category.MonthlyBudgetLimit;
             }
         }
     }
