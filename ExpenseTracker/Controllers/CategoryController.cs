@@ -38,6 +38,14 @@ namespace ExpenseTracker.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult AddOrEdit(Category obj)
         {
+            obj.Title = obj.Title?.Trim();
+            obj.Icon = obj.Icon?.Trim();
+
+            if (string.IsNullOrWhiteSpace(obj.Title))
+            {
+                ModelState.AddModelError(nameof(Category.Title), "Please enter a category name.");
+            }
+
             if (ModelState.IsValid)
             {
                 if(obj.CategoryId == 0)

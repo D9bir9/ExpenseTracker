@@ -1,22 +1,76 @@
 @model List<ExpenseTracker.Models.Transaction>
 @{
     ViewData["PageTitle"] = "Transactions";
-    ViewData["PageActionText"] = "+ New Transaction";
+    ViewData["PageActionText"] = "+ Add Transaction";
     ViewData["PageActionUrl"] = "/Transaction/AddOrEdit";
+
+    var selectedCategoryId = ViewBag.SelectedCategoryId as int? ?? 0;
+    var selectedSort = ViewBag.SelectedSort ?? "date-desc";
 }
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <div class="d-flex flex-wrap gap-3 align-items-center justify-content-between">
+            <form method="get" class="d-flex flex-wrap gap-3 align-items-center">
+                <div style="min-width: 220px;">
+                    <label class="form-label small text-muted mb-1">Category</label>
+                    <select name="categoryId" class="form-select form-select-sm">
+                        <option value="0">All categories</option>
+                        @foreach (var category in ViewBag.Categories as List<ExpenseTracker.Models.Category> ?? new List<ExpenseTracker.Models.Category>())
+                        {
+                            if (category.CategoryId == selectedCategoryId)
+                            {
+                                <option value="@category.CategoryId" selected>@category.TitleWithIcon</option>
+                            }
+                            else
+                            {
+                                <option value="@category.CategoryId">@category.TitleWithIcon</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div style="min-width: 180px;">
+                    <label class="form-label small text-muted mb-1">Sort</label>
+                    <select name="sortBy" class="form-select form-select-sm">
+                        <option value="date-desc" selected="@(selectedSort == "date-desc")">Newest first</option>
+                        <option value="date-asc" selected="@(selectedSort == "date-asc")">Oldest first</option>
+                        <option value="amount-desc" selected="@(selectedSort == "amount-desc")">Highest amount</option>
+                        <option value="amount-asc" selected="@(selectedSort == "amount-asc")">Lowest amount</option>
+                    </select>
+                </div>
+
+                <div class="align-self-end">
+                    <button type="submit" class="btn btn-sm btn-outline-light">Apply</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="row">
     <div class="col-md-7">
-        <ejs-grid id="Grid" dataSource="@Model" gridLines="None" allowSorting=true allowPaging=true>
-            <e-grid-pagesettings pageSize="10"></e-grid-pagesettings>
-            <e-grid-columns>
-                <e-grid-column field="CategoryTitleWithIcon" headerText="Category"></e-grid-column>
-                <e-grid-column field="Date" headerText="Date" width="110px" type="date" format="MMM-dd-yy"
-                textAlign="Left"></e-grid-column>
-                <e-grid-column field="FormattedAmount" headerText="Amount" width="110px" textAlign="Right"></e-grid-column>
-                <e-grid-column field="Note" headerText="Note" width="110px"></e-grid-column>
-                <e-grid-column headerText="Actions" template="#actionColumnTemplate" width="100px"></e-grid-column>
-            </e-grid-columns>
-        </ejs-grid>
+        @if (Model.Count == 0)
+        {
+            <div class="widget p-4 text-center text-muted">
+                <i class="fa-solid fa-wallet fa-2xl d-block mb-3"></i>
+                No transactions yet. Add your first one to get started.
+            </div>
+        }
+        else
+        {
+            <ejs-grid id="Grid" dataSource="@Model" gridLines="None" allowSorting=true allowPaging=true>
+                <e-grid-pagesettings pageSize="10"></e-grid-pagesettings>
+                <e-grid-columns>
+                    <e-grid-column field="CategoryTitleWithIcon" headerText="Category"></e-grid-column>
+                    <e-grid-column field="Date" headerText="Date" width="110px" type="date" format="MMM-dd-yy"
+                    textAlign="Left"></e-grid-column>
+                    <e-grid-column field="FormattedAmount" headerText="Amount" width="110px" textAlign="Right"></e-grid-column>
+                    <e-grid-column field="Note" headerText="Note" width="110px"></e-grid-column>
+                    <e-grid-column headerText="Actions" template="#actionColumnTemplate" width="100px"></e-grid-column>
+                </e-grid-columns>
+            </ejs-grid>
+        }
     </div>
     <div class="col-md-5">
         <div class="widget h-100 d-flex justify-content-center align-items-center">
@@ -33,7 +87,7 @@
         <form action="/Transaction/Delete/${TransactionId}" method="post">
             @Html.AntiForgeryToken()
             <button type="submit" class="btn btn-sm btn-link no-a-decoration"
-            onclick="return confirm(&quot;Are you sure to delete this record?&quot;)">
+            onclick="return confirm(&quot;Are you sure you want to delete this transaction?&quot;)">
                 <i class="fa-solid fa-trash-can fa-lg text-danger"></i>
             </button>
         </form>

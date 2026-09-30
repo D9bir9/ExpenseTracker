@@ -2589,11 +2589,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/dabi/Desktop/MVC_tutorial/ExpenseTracker/ExpenseTracker.csproj",
+      "projectUniqueName": "/home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/ExpenseTracker.csproj",
       "projectName": "ExpenseTracker",
-      "projectPath": "/home/dabi/Desktop/MVC_tutorial/ExpenseTracker/ExpenseTracker.csproj",
+      "projectPath": "/home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/ExpenseTracker.csproj",
       "packagesPath": "/home/dabi/.nuget/packages/",
-      "outputPath": "/home/dabi/Desktop/MVC_tutorial/ExpenseTracker/obj/",
+      "outputPath": "/home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/home/dabi/.nuget/NuGet/NuGet.Config"

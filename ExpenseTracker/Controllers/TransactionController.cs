@@ -13,10 +13,29 @@ namespace ExpenseTracker.Controllers
             _unitOfWork = unitOfWork;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(int? categoryId = null, string sortBy = "date-desc")
         {
-            IEnumerable<Transaction> transactions = _unitOfWork.Transaction.GetAll("Category");
-            return View(transactions);
+            var transactions = _unitOfWork.Transaction.GetAll("Category")
+                .AsQueryable();
+
+            if (categoryId.HasValue && categoryId.Value > 0)
+            {
+                transactions = transactions.Where(t => t.CategoryId == categoryId.Value);
+            }
+
+            transactions = sortBy switch
+            {
+                "amount-desc" => transactions.OrderByDescending(t => t.Amount),
+                "amount-asc" => transactions.OrderBy(t => t.Amount),
+                "date-asc" => transactions.OrderBy(t => t.Date),
+                _ => transactions.OrderByDescending(t => t.Date),
+            };
+
+            ViewBag.SelectedCategoryId = categoryId ?? 0;
+            ViewBag.SelectedSort = sortBy;
+            ViewBag.Categories = _unitOfWork.Category.GetAll("").ToList();
+
+            return View(transactions.ToList());
         }
 
 
@@ -39,18 +58,22 @@ namespace ExpenseTracker.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult AddOrEdit(Transaction obj)
         {
+            obj.Note = obj.Note?.Trim();
+
+            if (string.IsNullOrWhiteSpace(obj.Note))
+            {
+                obj.Note = null;
+            }
+
             if (ModelState.IsValid)
             {
                 if(obj.TransactionId == 0)
                 {
-                   
                     obj.CultureCode = System.Globalization.CultureInfo.CurrentCulture.Name;
                     _unitOfWork.Transaction.Create(obj);
                 }
                 else
                 {
-                    // preserve the original CultureCode on edit — reload it from the DB
-                    // rather than trusting the hidden form field, since a user could tamper with it
                     var existing = _unitOfWork.Transaction.GetById(t => t.TransactionId == obj.TransactionId, "");
                     obj.CultureCode = existing?.CultureCode;
                     _unitOfWork.Transaction.Update(obj);

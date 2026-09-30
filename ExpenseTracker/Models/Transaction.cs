@@ -12,26 +12,38 @@ namespace ExpenseTracker.Models
     {
         [Key]
         public int TransactionId { get; set; }
-        [Range(1, int.MaxValue, ErrorMessage ="Please select a category")]
+
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a category.")]
         public int CategoryId { get; set; }
+
         public Category? Category { get; set; }
-        [Range(1, int.MaxValue, ErrorMessage ="Amount Should be greater than 0")]
+
+        [Range(1, int.MaxValue, ErrorMessage = "Amount must be greater than zero.")]
         public int Amount { get; set; }
+
         [Column(TypeName = "nvarchar(75)")]
         public string? Note { get; set; }
+
         public DateTime Date { get; set; } = DateTime.Now;
-        public string CultureCode { get; set; } = System.Globalization.CultureInfo.CurrentCulture.Name;// e.g. "en-US", "en-GB" — set at creation time
+        public string CultureCode { get; set; } = System.Globalization.CultureInfo.CurrentCulture.Name;
 
         [NotMapped]
-        public string? CategoryTitleWithIcon {
+        public string? CategoryTitleWithIcon
+        {
             get
             {
-                return Category == null ? "" : Category.Icon + " " + Category.Title;
-            } 
+                if (Category == null)
+                    return "";
+
+                return string.IsNullOrWhiteSpace(Category.Icon)
+                    ? Category.Title
+                    : $"{Category.Icon} {Category.Title}";
+            }
         }
 
         [NotMapped]
-        public string? FormattedAmount {
+        public string? FormattedAmount
+        {
             get
             {
                 CultureInfo culture;

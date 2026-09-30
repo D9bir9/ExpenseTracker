@@ -28,8 +28,6 @@ namespace ExpenseTracker.Controllers
             DateTime StartDate = DateTime.Today.AddDays(-6);
             DateTime EndDate = DateTime.Today;
 
-            // Currency to display everything in — driven by the CURRENT culture,
-            // regardless of what culture was active when each transaction was entered.
             string targetCurrency = _currencyService.GetCurrencyCode(System.Globalization.CultureInfo.CurrentCulture.Name);
 
             int rangeEnd = 7;
@@ -39,14 +37,20 @@ namespace ExpenseTracker.Controllers
                 case "14days":
                     StartDate = DateTime.Today.AddDays(-13);
                     rangeEnd = 14;
+                    EndDate = StartDate.AddDays(rangeEnd - 1);
                     break;
                 case "30days":
                     StartDate = DateTime.Today.AddDays(-29);
                     rangeEnd = 30;
+                    EndDate = StartDate.AddDays(rangeEnd - 1);
                     break;
                 case "thismonth":
                     StartDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-                    rangeEnd = DateTime.DaysInMonth(DateTime.Today.Year, DateTime.Today.Month);
+                    EndDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.DaysInMonth(DateTime.Today.Year, DateTime.Today.Month));
+                    rangeEnd = EndDate.Day;
+                    break;
+                default:
+                    EndDate = DateTime.Today;
                     break;
             }
 
