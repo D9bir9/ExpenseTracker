@@ -62,7 +62,6 @@ namespace ExpenseTracker.Services
 
             if (_cache.TryGetValue(cacheKey, out decimal cachedRate))
                 return cachedRate;
-
             // open.er-api.com supports NGN and the currencies used in this budget app.
             var url = $"https://open.er-api.com/v6/latest/{fromCurrency}";
 
