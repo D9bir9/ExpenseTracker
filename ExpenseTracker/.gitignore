@@ -1,4 +1,4 @@
 *.dll
 *.db
-bin
-obj
+/bin/
+/obj/
