@@ -1,10 +1,12 @@
 using ExpenseTracker.Models;
 using ExpenseTracker.Data.Repository.IRepository;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ExpenseTracker.Controllers
 {
-    public class TransactionController : Controller
+    [Authorize]
+    public class TransactionController : UserScopedController
     {
          private readonly IUnitOfWork _unitOfWork;
 
@@ -15,7 +17,7 @@ namespace ExpenseTracker.Controllers
 
         public IActionResult Index(int? categoryId = null, string sortBy = "date-desc")
         {
-            var transactions = _unitOfWork.Transaction.GetAll("Category")
+            var transactions = _unitOfWork.Transaction.GetRange(t => t.OwnerId == CurrentUserId, "Category")
                 .AsQueryable();
 
             if (categoryId.HasValue && categoryId.Value > 0)
@@ -33,7 +35,7 @@ namespace ExpenseTracker.Controllers
 
             ViewBag.SelectedCategoryId = categoryId ?? 0;
             ViewBag.SelectedSort = sortBy;
-            ViewBag.Categories = _unitOfWork.Category.GetAll("").ToList();
+            ViewBag.Categories = _unitOfWork.Category.GetRange(c => c.OwnerId == CurrentUserId).ToList();
 
             return View(transactions.ToList());
         }
@@ -46,7 +48,8 @@ namespace ExpenseTracker.Controllers
             {
                 return View(new Transaction());
             }
-            Transaction? transactionFromDb = _unitOfWork.Transaction.GetById(c => c.TransactionId.Equals(id),"Category");
+            Transaction? transactionFromDb = _unitOfWork.Transaction.GetById(
+                t => t.TransactionId == id && t.OwnerId == CurrentUserId, "Category");
             if (transactionFromDb == null)
             {
                 return NotFound();
@@ -58,6 +61,15 @@ namespace ExpenseTracker.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult AddOrEdit(Transaction obj)
         {
+            Transaction? existing = null;
+            if (obj.TransactionId != 0)
+            {
+                existing = _unitOfWork.Transaction.GetById(
+                    t => t.TransactionId == obj.TransactionId && t.OwnerId == CurrentUserId, "");
+                if (existing == null)
+                    return NotFound();
+            }
+
             obj.Note = obj.Note?.Trim();
 
             if (string.IsNullOrWhiteSpace(obj.Note))
@@ -67,19 +79,32 @@ namespace ExpenseTracker.Controllers
 
             if (ModelState.IsValid)
             {
-                if(obj.TransactionId == 0)
+                var category = _unitOfWork.Category.GetById(
+                    c => c.CategoryId == obj.CategoryId && c.OwnerId == CurrentUserId, "");
+                if (category == null)
                 {
-                    obj.CultureCode = System.Globalization.CultureInfo.CurrentCulture.Name;
-                    _unitOfWork.Transaction.Create(obj);
+                    ModelState.AddModelError(nameof(Transaction.CategoryId), "Select one of your categories.");
                 }
                 else
                 {
-                    var existing = _unitOfWork.Transaction.GetById(t => t.TransactionId == obj.TransactionId, "");
-                    obj.CultureCode = existing?.CultureCode;
-                    _unitOfWork.Transaction.Update(obj);
+                    if (existing == null)
+                    {
+                        obj.OwnerId = CurrentUserId;
+                        obj.CultureCode = System.Globalization.CultureInfo.CurrentCulture.Name;
+                        _unitOfWork.Transaction.Create(obj);
+                    }
+                    else
+                    {
+                        existing.CategoryId = obj.CategoryId;
+                        existing.Amount = obj.Amount;
+                        existing.Date = obj.Date;
+                        existing.Note = obj.Note;
+                        _unitOfWork.Transaction.Update(existing);
+                    }
+
+                    _unitOfWork.Save();
+                    return RedirectToAction("Index");
                 }
-                _unitOfWork.Save();
-                return RedirectToAction("Index");
             }
             populateCategories();
             return View(obj);
@@ -90,7 +115,8 @@ namespace ExpenseTracker.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeletePOST(int? id)
         {
-            Transaction? obj = _unitOfWork.Transaction.GetById(u => u.TransactionId.Equals(id), "Category");
+            Transaction? obj = _unitOfWork.Transaction.GetById(
+                t => t.TransactionId == id && t.OwnerId == CurrentUserId, "Category");
             if(obj == null)
             {
                 return NotFound();
@@ -109,7 +135,7 @@ namespace ExpenseTracker.Controllers
         [NonAction]
         public void populateCategories()
         {
-            var categoryCollections = _unitOfWork.Category.GetAll("").ToList();
+            var categoryCollections = _unitOfWork.Category.GetRange(c => c.OwnerId == CurrentUserId).ToList();
             var Default = new Category(){CategoryId = 0, Title = "Select Category"};
             categoryCollections.Insert(0, Default);
             ViewBag.Categories = categoryCollections;

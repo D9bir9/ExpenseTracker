@@ -15,8 +15,11 @@
         <link rel="stylesheet" href="~/ExpenseTracker.styles.css" asp-append-version="true" />
         <script src="https://cdn.syncfusion.com/ej2/34.2.8/dist/ej2.min.js"></script>
     </head>
-    <body class="e-bigger">
-        <partial name="_Sidebar"/>
+    <body class="e-bigger @(User.Identity?.IsAuthenticated == true ? "" : "auth-shell")">
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <partial name="_Sidebar"/>
+        }
         <div class="dock-target">
             <div class="main-content">
                 <div class="container mt-4">

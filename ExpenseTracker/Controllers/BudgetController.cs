@@ -1,11 +1,13 @@
 using ExpenseTracker.Data.Repository.IRepository;
 using ExpenseTracker.Models;
+using Microsoft.AspNetCore.Authorization;
 using ExpenseTracker.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExpenseTracker.Controllers
 {
-    public class BudgetController : Controller
+    [Authorize]
+    public class BudgetController : UserScopedController
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrencyConversionService _currencyService;
@@ -28,7 +30,8 @@ namespace ExpenseTracker.Controllers
         public async Task<IActionResult> UpdateLimit(int categoryId, decimal monthlyBudgetLimit, string sortBy = "over-budget")
         {
             sortBy = NormalizeSortBy(sortBy);
-            var category = _unitOfWork.Category.GetById(c => c.CategoryId == categoryId, "");
+            var category = _unitOfWork.Category.GetById(
+                c => c.CategoryId == categoryId && c.OwnerId == CurrentUserId, "");
             if (category == null || category.Type != "Expense")
                 return NotFound();
 
@@ -61,13 +64,13 @@ namespace ExpenseTracker.Controllers
             var previousMonthStart = monthStart.AddMonths(-1);
 
             var periodTransactions = _unitOfWork.Transaction.GetRange(
-                    t => t.Date >= previousMonthStart && t.Date <= monthEnd,
+                    t => t.OwnerId == CurrentUserId && t.Date >= previousMonthStart && t.Date <= monthEnd,
                     "Category")
                 .ToList();
             var convertedAmounts = await ConvertTransactionsAsync(periodTransactions, targetCurrency);
 
-            var categories = _unitOfWork.Category.GetAll("")
-                .Where(c => c.Type == "Expense")
+            var categories = _unitOfWork.Category.GetRange(
+                    c => c.OwnerId == CurrentUserId && c.Type == "Expense")
                 .ToList();
             var convertedLimits = await Task.WhenAll(categories.Select(async category =>
                 (category.CategoryId, Limit: await _currencyService.ConvertAsync(

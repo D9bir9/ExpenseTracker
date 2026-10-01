@@ -9,6 +9,9 @@ namespace ExpenseTracker.Models
         [Key]
         public int TransactionId { get; set; }
 
+        public string? OwnerId { get; set; }
+        public ApplicationUser? Owner { get; set; }
+
         [Range(1, int.MaxValue, ErrorMessage = "Please select a category.")]
         public int CategoryId { get; set; }
 
