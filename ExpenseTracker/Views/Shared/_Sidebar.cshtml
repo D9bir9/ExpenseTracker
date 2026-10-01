@@ -45,6 +45,25 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var dockBar = document.getElementById('sidebar').ej2_instances[0];
+        var compactLayout = null;
+
+        function updateSidebarForViewport() {
+            var useCompactLayout = window.matchMedia('(max-width: 767.98px)').matches;
+            if (useCompactLayout === compactLayout) {
+                return;
+            }
+
+            compactLayout = useCompactLayout;
+            dockBar.setProperties({ dockSize: useCompactLayout ? '72px' : '100px' });
+            var shouldBeOpen = !useCompactLayout;
+            if (dockBar.isOpen !== shouldBeOpen) {
+                dockBar.toggle();
+            }
+        }
+
+        updateSidebarForViewport();
+        window.addEventListener('resize', updateSidebarForViewport);
+
         document.getElementById('sidebar-toggler').onclick = function () {
             dockBar.toggle();
         };
