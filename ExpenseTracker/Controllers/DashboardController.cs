@@ -1,11 +1,13 @@
 using ExpenseTracker.Data.Repository.IRepository;
 using ExpenseTracker.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ExpenseTracker.Models;
 
 namespace ExpenseTracker.Controllers
 {
-    public class DashboardController : Controller
+    [Authorize]
+    public class DashboardController : UserScopedController
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrencyConversionService _currencyService;
@@ -55,14 +57,14 @@ namespace ExpenseTracker.Controllers
             }
 
             List<Transaction> selectedTransactions = _unitOfWork.Transaction
-                .GetRange(y => y.Date >= StartDate && y.Date <= EndDate, "Category")
+                .GetRange(y => y.OwnerId == CurrentUserId && y.Date >= StartDate && y.Date <= EndDate, "Category")
                 .ToList();
 
             DateTime monthStart = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             DateTime previousMonthStart = monthStart.AddMonths(-1);
             DateTime monthEnd = monthStart.AddMonths(1).AddTicks(-1);
             var monthTransactions = _unitOfWork.Transaction.GetRange(
-                    t => t.Date >= previousMonthStart && t.Date <= monthEnd,
+                    t => t.OwnerId == CurrentUserId && t.Date >= previousMonthStart && t.Date <= monthEnd,
                     "Category")
                 .ToList();
 
@@ -135,8 +137,8 @@ namespace ExpenseTracker.Controllers
                 });
 
             // Budget tracking for the current month.
-            var categories = _unitOfWork.Category.GetAll("")
-                .Where(c => c.Type == "Expense")
+            var categories = _unitOfWork.Category.GetRange(
+                    c => c.OwnerId == CurrentUserId && c.Type == "Expense")
                 .ToList();
             var convertedLimits = await Task.WhenAll(categories.Select(async category =>
                 (category.CategoryId, Limit: await _currencyService.ConvertAsync(
@@ -196,7 +198,8 @@ namespace ExpenseTracker.Controllers
                 : null;
 
             // Recent Transactions
-            var RecentTransactions = _unitOfWork.Transaction.GetAll("Category")
+            var RecentTransactions = _unitOfWork.Transaction
+                .GetRange(t => t.OwnerId == CurrentUserId, "Category")
                 .OrderByDescending(j => j.Date)
                 .Take(5)
                 .ToList();

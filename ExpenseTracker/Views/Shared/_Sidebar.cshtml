@@ -39,6 +39,18 @@
                   items="@menuItems"
                   orientation="Vertical"
                   hamburgerMode></ejs-menu>
+
+        <div class="sidebar-account">
+            <span class="sidebar-account-email">@User.Identity?.Name</span>
+            <form asp-controller="Account" asp-action="Logout" method="post">
+                <button type="submit" class="btn btn-outline-secondary w-100">
+                    <i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Sign out
+                </button>
+            </form>
+            <a asp-controller="Account" asp-action="Delete" class="sidebar-delete-account">
+                Delete account
+            </a>
+        </div>
     </e-content-template>
 </ejs-sidebar>
 

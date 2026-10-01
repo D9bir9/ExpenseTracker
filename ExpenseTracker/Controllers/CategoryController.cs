@@ -1,12 +1,14 @@
 using ExpenseTracker.Data.Repository.IRepository;
 using ExpenseTracker.Models;
 using ExpenseTracker.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
 namespace ExpenseTracker.Controllers
 {
-    public class CategoryController : Controller
+    [Authorize]
+    public class CategoryController : UserScopedController
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrencyConversionService _currencyService;
@@ -19,7 +21,7 @@ namespace ExpenseTracker.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var categories = _unitOfWork.Category.GetAll("").ToList();
+            var categories = _unitOfWork.Category.GetRange(c => c.OwnerId == CurrentUserId).ToList();
             var targetCurrency = _currencyService.GetCurrencyCode(
                 System.Globalization.CultureInfo.CurrentCulture.Name);
             await Task.WhenAll(categories.Select(async category =>
@@ -37,7 +39,8 @@ namespace ExpenseTracker.Controllers
             {
                 return View(new Category());
             }
-            Category? categoryFromDb = _unitOfWork.Category.GetById(c => c.CategoryId.Equals(id),"");
+            Category? categoryFromDb = _unitOfWork.Category.GetById(
+                c => c.CategoryId == id && c.OwnerId == CurrentUserId, "");
             if (categoryFromDb == null)
             {
                 return NotFound();
@@ -73,13 +76,23 @@ namespace ExpenseTracker.Controllers
                 obj.MonthlyBudgetLimit = await _currencyService.ConvertAsync(
                     obj.MonthlyBudgetLimit, targetCurrency, "USD");
 
-                if(obj.CategoryId == 0)
+                if (obj.CategoryId == 0)
                 {
+                    obj.OwnerId = CurrentUserId;
                     _unitOfWork.Category.Create(obj);
                 }
                 else
                 {
-                    _unitOfWork.Category.Update(obj);
+                    var existing = _unitOfWork.Category.GetById(
+                        c => c.CategoryId == obj.CategoryId && c.OwnerId == CurrentUserId, "");
+                    if (existing == null)
+                        return NotFound();
+
+                    existing.Title = obj.Title;
+                    existing.Icon = obj.Icon;
+                    existing.Type = obj.Type;
+                    existing.MonthlyBudgetLimit = obj.MonthlyBudgetLimit;
+                    _unitOfWork.Category.Update(existing);
                 }
                 _unitOfWork.Save();
                 return RedirectToAction("Index");
@@ -92,7 +105,8 @@ namespace ExpenseTracker.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeletePOST(int? id)
         {
-            Category? obj = _unitOfWork.Category.GetById(u => u.CategoryId.Equals(id), "");
+            Category? obj = _unitOfWork.Category.GetById(
+                c => c.CategoryId == id && c.OwnerId == CurrentUserId, "");
             if(obj == null)
             {
                 return NotFound();

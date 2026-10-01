@@ -1,0 +1,49 @@
+@model ExpenseTracker.Models.Account.RegisterViewModel
+@{
+    ViewData["IsDashboard"] = true;
+    ViewData["Title"] = "Create account";
+}
+
+<div class="auth-page">
+    <div class="widget auth-card p-4 p-md-5">
+        <div class="text-center mb-4">
+            <img class="auth-logo mb-3" src="~/logo.png" alt="" />
+            <h1 class="h3 fw-bold mb-1">Create your account</h1>
+            <p class="text-muted mb-0">Your budget data stays private to you.</p>
+        </div>
+
+        <form asp-action="Register" method="post">
+            <input asp-for="ReturnUrl" type="hidden" />
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label">Email</label>
+                <input asp-for="Email" class="form-control" autocomplete="email" autofocus />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label">Password</label>
+                <input asp-for="Password" class="form-control" autocomplete="new-password" />
+                <span asp-validation-for="Password" class="text-danger small"></span>
+                <div class="form-text">At least 8 characters, including uppercase, lowercase, and a number.</div>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="ConfirmPassword" class="form-label">Confirm password</label>
+                <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100">Create account</button>
+        </form>
+
+        <p class="text-center text-muted mt-4 mb-0">
+            Already have an account? <a asp-action="Login">Sign in</a>
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

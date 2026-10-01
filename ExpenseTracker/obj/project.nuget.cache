@@ -1,10 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "wfe/Vvy2Fig=",
+  "dgSpecHash": "piryXdgpdb8=",
   "success": true,
   "projectFilePath": "/home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/ExpenseTracker.csproj",
   "expectedPackageFiles": [
     "/home/dabi/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
+    "/home/dabi/.nuget/packages/microsoft.aspnetcore.identity.entityframeworkcore/10.0.12/microsoft.aspnetcore.identity.entityframeworkcore.10.0.12.nupkg.sha512",
     "/home/dabi/.nuget/packages/microsoft.build.framework/18.0.2/microsoft.build.framework.18.0.2.nupkg.sha512",
     "/home/dabi/.nuget/packages/microsoft.codeanalysis.analyzers/3.11.0/microsoft.codeanalysis.analyzers.3.11.0.nupkg.sha512",
     "/home/dabi/.nuget/packages/microsoft.codeanalysis.common/5.0.0/microsoft.codeanalysis.common.5.0.0.nupkg.sha512",

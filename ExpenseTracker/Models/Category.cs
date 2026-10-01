@@ -12,6 +12,9 @@ namespace ExpenseTracker.Models
         [Key]
         public int CategoryId { get; set; }
 
+        public string? OwnerId { get; set; }
+        public ApplicationUser? Owner { get; set; }
+
         [Column(TypeName = "nvarchar(50)")]
         [Required(ErrorMessage = "Please enter a category name.")]
         [StringLength(50, ErrorMessage = "Category name must be 50 characters or less.")]

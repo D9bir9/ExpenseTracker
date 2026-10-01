@@ -354,7 +354,6 @@
 /home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/ExpenseTracker.MvcApplicationPartsAssemblyInfo.cache
 /home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/ExpenseTracker.RazorAssemblyInfo.cache
 /home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/ExpenseTracker.RazorAssemblyInfo.cs
-/home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/ExpenseTracker.sourcelink.json
 /home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/rjimswa.dswa.cache.json
 /home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/rjsmrazor.dswa.cache.json
 /home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/rjsmcshtml.dswa.cache.json
@@ -435,4 +434,5 @@
 /home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/ExpenseTracker.genruntimeconfig.cache
 /home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/ref/ExpenseTracker.dll
 /home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/compressed/9yjzlft51c-{0}-vnpefdflj6-vnpefdflj6.gz
-/home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/compressed/lsz27yj9kw-{0}-6qcdt2ukhc-6qcdt2ukhc.gz
+/home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/bin/Debug/net10.0/Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+/home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/compressed/lsz27yj9kw-{0}-qj62r6r7ro-qj62r6r7ro.gz
