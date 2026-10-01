@@ -214,8 +214,6 @@
 /home/dabi/Desktop/MVC_tutorial/ExpenseTracker/bin/Debug/net10.0/Syncfusion.EJ2.dll
 /home/dabi/Desktop/MVC_tutorial/ExpenseTracker/bin/Debug/net10.0/Syncfusion.Licensing.dll
 /home/dabi/Desktop/MVC_tutorial/ExpenseTracker/bin/Debug/net10.0/Syncfusion.Telemetry.dll
-/home/dabi/Desktop/MVC_tutorial/ExpenseTracker/obj/Debug/net10.0/compressed/9yjzlft51c-{0}-ihz5u0lihh-ihz5u0lihh.gz
-/home/dabi/Desktop/MVC_tutorial/ExpenseTracker/obj/Debug/net10.0/compressed/lsz27yj9kw-{0}-dhjlvh07ge-dhjlvh07ge.gz
 /home/dabi/Desktop/MVC_tutorial/ExpenseTracker/obj/Debug/net10.0/ExpenseTracker.sourcelink.json
 /home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/bin/Debug/net10.0/appsettings.Development.json
 /home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/bin/Debug/net10.0/appsettings.json
@@ -436,3 +434,8 @@
 /home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/ref/ExpenseTracker.dll
 /home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/compressed/9yjzlft51c-{0}-vnpefdflj6-vnpefdflj6.gz
 /home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/compressed/lsz27yj9kw-{0}-6qcdt2ukhc-6qcdt2ukhc.gz
+/home/dabi/Desktop/MVC_tutorial/ExpenseTracker/bin/Debug/net10.0/Microsoft.Extensions.Caching.StackExchangeRedis.dll
+/home/dabi/Desktop/MVC_tutorial/ExpenseTracker/bin/Debug/net10.0/Pipelines.Sockets.Unofficial.dll
+/home/dabi/Desktop/MVC_tutorial/ExpenseTracker/bin/Debug/net10.0/StackExchange.Redis.dll
+/home/dabi/Desktop/MVC_tutorial/ExpenseTracker/obj/Debug/net10.0/compressed/lsz27yj9kw-{0}-6qcdt2ukhc-6qcdt2ukhc.gz
+/home/dabi/Desktop/MVC_tutorial/ExpenseTracker/obj/Debug/net10.0/compressed/9yjzlft51c-{0}-vnpefdflj6-vnpefdflj6.gz
