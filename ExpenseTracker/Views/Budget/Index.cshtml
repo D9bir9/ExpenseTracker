@@ -128,23 +128,23 @@
         var monthlyChange = item.Spent - item.LastMonthSpent;
         var categoryChangeClass = monthlyChange <= 0 ? "text-success" : "text-danger";
 
-        <div class="col-md-6 col-xl-4">
-            <div class="widget p-4 h-100">
+        <div class="col-md-6 col-xl-6">
+            <div class="widget budget-category-card p-4 h-100">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="fw-bold mb-0">@item.CategoryTitle</h6>
+                    <h6 class="budget-category-title fw-bold mb-0">@item.CategoryTitle</h6>
                     <span class="badge @statusClass">@item.Status</span>
                 </div>
 
-                <div class="d-flex justify-content-between small text-muted mb-2">
+                <div class="d-flex justify-content-between gap-3 small text-muted mb-2">
                     <span>Spent</span>
                     <span>@item.Spent.ToString("C0")</span>
                 </div>
-                <div class="d-flex justify-content-between small text-muted mb-3">
+                <div class="d-flex justify-content-between gap-3 small text-muted mb-3">
                     <span>Limit</span>
                     <span>@(item.Limit > 0 ? item.Limit.ToString("C0") : "No target")</span>
                 </div>
 
-                <div class="small @categoryChangeClass mb-3">
+                <div class="small @categoryChangeClass budget-category-change mb-3">
                     vs last month: @(monthlyChange > 0 ? "+" : "")@monthlyChange.ToString("C0")
                     <span class="text-muted">(@item.LastMonthSpent.ToString("C0") last month)</span>
                 </div>
@@ -155,7 +155,7 @@
 
                 @if (item.Limit > 0)
                 {
-                    <div class="d-flex justify-content-between small @remainingClass">
+                    <div class="d-flex justify-content-between gap-3 small @remainingClass">
                         <span>@(item.Remaining >= 0 ? "Remaining" : "Over")</span>
                         <span>@item.Remaining.ToString("C0")</span>
                     </div>

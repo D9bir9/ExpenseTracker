@@ -24,7 +24,11 @@ namespace ExpenseTracker.Models
         public string Type { get; set; } = "Expense";
 
         [Column(TypeName = "decimal(18,2)")]
+        // Budget targets are persisted in USD and converted for the active culture.
         public decimal MonthlyBudgetLimit { get; set; }
+
+        [NotMapped]
+        public string MonthlyBudgetLimitFormatted { get; set; } = string.Empty;
 
         [NotMapped]
         public string? TitleWithIcon

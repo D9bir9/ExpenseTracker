@@ -1,5 +1,6 @@
 using ExpenseTracker.Data.Repository.IRepository;
 using ExpenseTracker.Models;
+using ExpenseTracker.Services;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -8,19 +9,29 @@ namespace ExpenseTracker.Controllers
     public class CategoryController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ICurrencyConversionService _currencyService;
 
-        public CategoryController(IUnitOfWork unitOfWork)
+        public CategoryController(IUnitOfWork unitOfWork, ICurrencyConversionService currencyService)
         {
             _unitOfWork = unitOfWork;
+            _currencyService = currencyService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            IEnumerable<Category> categories = _unitOfWork.Category.GetAll("");
+            var categories = _unitOfWork.Category.GetAll("").ToList();
+            var targetCurrency = _currencyService.GetCurrencyCode(
+                System.Globalization.CultureInfo.CurrentCulture.Name);
+            await Task.WhenAll(categories.Select(async category =>
+            {
+                var displayLimit = await _currencyService.ConvertAsync(
+                    category.MonthlyBudgetLimit, "USD", targetCurrency);
+                category.MonthlyBudgetLimitFormatted = displayLimit.ToString("C2");
+            }));
             return View(categories);
         }
 
-        public IActionResult AddOrEdit(int id = 0)
+        public async Task<IActionResult> AddOrEdit(int id = 0)
         {
             if (id == 0)
             {
@@ -31,12 +42,16 @@ namespace ExpenseTracker.Controllers
             {
                 return NotFound();
             }
+            var targetCurrency = _currencyService.GetCurrencyCode(
+                System.Globalization.CultureInfo.CurrentCulture.Name);
+            categoryFromDb.MonthlyBudgetLimit = await _currencyService.ConvertAsync(
+                categoryFromDb.MonthlyBudgetLimit, "USD", targetCurrency);
             return View(categoryFromDb);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AddOrEdit(Category obj)
+        public async Task<IActionResult> AddOrEdit(Category obj)
         {
             obj.Title = obj.Title?.Trim();
             obj.Icon = obj.Icon?.Trim();
@@ -53,6 +68,11 @@ namespace ExpenseTracker.Controllers
 
             if (ModelState.IsValid)
             {
+                var targetCurrency = _currencyService.GetCurrencyCode(
+                    System.Globalization.CultureInfo.CurrentCulture.Name);
+                obj.MonthlyBudgetLimit = await _currencyService.ConvertAsync(
+                    obj.MonthlyBudgetLimit, targetCurrency, "USD");
+
                 if(obj.CategoryId == 0)
                 {
                     _unitOfWork.Category.Create(obj);

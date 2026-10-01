@@ -169,6 +169,16 @@ body {
 
 .app-logo {
     padding: 10px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.app-logo-image {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 8px;
 }
 
 /*Menu*/
@@ -373,6 +383,28 @@ img.profile-pic {
 
 .budget-near-limit {
     color: #a16207 !important;
+}
+
+.budget-category-card {
+    font-size: 1rem;
+}
+
+.budget-category-title {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.budget-category-card .badge {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+}
+
+.budget-category-card .d-flex > span:last-child {
+    text-align: right;
+}
+
+.budget-category-change {
+    line-height: 1.5;
 }
 
 .btn-outline-light {

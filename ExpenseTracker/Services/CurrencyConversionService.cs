@@ -46,6 +46,9 @@ namespace ExpenseTracker.Services
  
         public async Task<decimal> ConvertAsync(decimal amount, string fromCurrency, string toCurrency)
         {
+            if (amount == 0m)
+                return 0m;
+
             if (string.Equals(fromCurrency, toCurrency, StringComparison.OrdinalIgnoreCase))
                 return amount;
  

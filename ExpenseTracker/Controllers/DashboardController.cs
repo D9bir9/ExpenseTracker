@@ -138,6 +138,10 @@ namespace ExpenseTracker.Controllers
             var categories = _unitOfWork.Category.GetAll("")
                 .Where(c => c.Type == "Expense")
                 .ToList();
+            var convertedLimits = await Task.WhenAll(categories.Select(async category =>
+                (category.CategoryId, Limit: await _currencyService.ConvertAsync(
+                    category.MonthlyBudgetLimit, "USD", targetCurrency))));
+            var limitsByCategory = convertedLimits.ToDictionary(x => x.CategoryId, x => x.Limit);
 
             var budgetData = new List<DashboardBudgetData>();
             foreach (var category in categories)
@@ -149,23 +153,24 @@ namespace ExpenseTracker.Controllers
                 var lastMonthSpent = categoryTransactions
                     .Where(t => t.Date >= previousMonthStart && t.Date < monthStart)
                     .Sum(t => convertedAmounts[t.TransactionId]);
-                var remaining = category.MonthlyBudgetLimit - spent;
-                var progressPercent = category.MonthlyBudgetLimit > 0
-                    ? Math.Min((spent / category.MonthlyBudgetLimit) * 100m, 100m)
+                var limit = limitsByCategory[category.CategoryId];
+                var remaining = limit - spent;
+                var progressPercent = limit > 0
+                    ? Math.Min((spent / limit) * 100m, 100m)
                     : 0m;
 
                 budgetData.Add(new DashboardBudgetData
                 {
                     CategoryTitle = category.TitleWithIcon ?? category.Title,
-                    Limit = category.MonthlyBudgetLimit,
+                    Limit = limit,
                     Spent = spent,
                     LastMonthSpent = lastMonthSpent,
                     Remaining = remaining,
-                    HasLimit = category.MonthlyBudgetLimit > 0,
-                    OverBudget = category.MonthlyBudgetLimit > 0 && spent > category.MonthlyBudgetLimit,
-                    NearLimit = category.MonthlyBudgetLimit > 0 && spent <= category.MonthlyBudgetLimit && spent >= category.MonthlyBudgetLimit * 0.8m,
+                    HasLimit = limit > 0,
+                    OverBudget = limit > 0 && spent > limit,
+                    NearLimit = limit > 0 && spent <= limit && spent >= limit * 0.8m,
                     ProgressPercent = progressPercent,
-                    LimitText = category.MonthlyBudgetLimit.ToString("C0"),
+                    LimitText = limit.ToString("C0"),
                     SpentText = spent.ToString("C0"),
                     LastMonthSpentText = lastMonthSpent.ToString("C0"),
                     RemainingText = remaining.ToString("C0")

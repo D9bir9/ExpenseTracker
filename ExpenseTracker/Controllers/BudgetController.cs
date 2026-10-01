@@ -25,7 +25,7 @@ namespace ExpenseTracker.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult UpdateLimit(int categoryId, decimal monthlyBudgetLimit, string sortBy = "over-budget")
+        public async Task<IActionResult> UpdateLimit(int categoryId, decimal monthlyBudgetLimit, string sortBy = "over-budget")
         {
             sortBy = NormalizeSortBy(sortBy);
             var category = _unitOfWork.Category.GetById(c => c.CategoryId == categoryId, "");
@@ -38,7 +38,10 @@ namespace ExpenseTracker.Controllers
                 return RedirectToAction(nameof(Index), new { sortBy });
             }
 
-            category.MonthlyBudgetLimit = monthlyBudgetLimit;
+            var targetCurrency = _currencyService.GetCurrencyCode(
+                System.Globalization.CultureInfo.CurrentCulture.Name);
+            category.MonthlyBudgetLimit = await _currencyService.ConvertAsync(
+                monthlyBudgetLimit, targetCurrency, "USD");
             _unitOfWork.Category.Update(category);
             _unitOfWork.Save();
 
@@ -66,6 +69,10 @@ namespace ExpenseTracker.Controllers
             var categories = _unitOfWork.Category.GetAll("")
                 .Where(c => c.Type == "Expense")
                 .ToList();
+            var convertedLimits = await Task.WhenAll(categories.Select(async category =>
+                (category.CategoryId, Limit: await _currencyService.ConvertAsync(
+                    category.MonthlyBudgetLimit, "USD", targetCurrency))));
+            var limitsByCategory = convertedLimits.ToDictionary(x => x.CategoryId, x => x.Limit);
 
             var summaries = new List<BudgetCategorySummary>();
 
@@ -79,7 +86,7 @@ namespace ExpenseTracker.Controllers
                     .Where(t => t.Date >= previousMonthStart && t.Date < monthStart)
                     .Sum(t => convertedAmounts[t.TransactionId]);
 
-                var limit = category.MonthlyBudgetLimit;
+                var limit = limitsByCategory[category.CategoryId];
                 var remaining = limit - spent;
                 var progressPercent = limit > 0 ? Math.Min((spent / limit) * 100m, 100m) : 0m;
 

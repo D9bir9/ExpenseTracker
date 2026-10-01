@@ -361,7 +361,6 @@
 /home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/scopedcss/Views/Shared/_Layout.cshtml.rz.scp.css
 /home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/scopedcss/bundle/ExpenseTracker.styles.css
 /home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/scopedcss/projectbundle/ExpenseTracker.bundle.scp.css
-/home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/compressed/9yjzlft51c-{0}-ihz5u0lihh-ihz5u0lihh.gz
 /home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/compressed/jije8pp9h6-{0}-fr7q2aak1r-fr7q2aak1r.gz
 /home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/compressed/lufwwbcll3-{0}-bqjiyaj88i-bqjiyaj88i.gz
 /home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/compressed/5lp31go4w1-{0}-c2jlpeoesf-c2jlpeoesf.gz
@@ -435,4 +434,5 @@
 /home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/ExpenseTracker.pdb
 /home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/ExpenseTracker.genruntimeconfig.cache
 /home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/ref/ExpenseTracker.dll
-/home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/compressed/lsz27yj9kw-{0}-6be4kbut8d-6be4kbut8d.gz
+/home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/compressed/9yjzlft51c-{0}-vnpefdflj6-vnpefdflj6.gz
+/home/dabi/Desktop/MVC_tutorial.worktrees/source-code-modifications/ExpenseTracker/obj/Debug/net10.0/compressed/lsz27yj9kw-{0}-jbn2r2aebh-jbn2r2aebh.gz
