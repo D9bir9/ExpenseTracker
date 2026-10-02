@@ -84,13 +84,11 @@ The following screenshots showcase the application dashboard and core management
 
 > Note: Add the files below to the repository under `docs/screenshots/` to render them correctly on GitHub.
 
-![Dashboard overview](docs/screenshots/dashboard-overview.png)
+<img width="786" height="967" alt="Screenshot_20261002_231847" src="https://github.com/user-attachments/assets/11bb116c-6ba1-45df-93b4-d9c3997c47bc" />
+<img width="1920" height="1080" alt="Screenshot_20261002_232040" src="https://github.com/user-attachments/assets/5613305f-5fa3-41e7-b102-5d8d380cc3a4" />
+<img width="1920" height="1080" alt="Screenshot_20261002_232137" src="https://github.com/user-attachments/assets/7d111df5-05b3-4f1c-8d28-6ef0c725ea4b" />
+<img width="624" height="967" alt="Screenshot_20261002_232246-1" src="https://github.com/user-attachments/assets/6152ebcb-fde9-4e26-9413-321ceca26473" />
 
-![Transactions screen](docs/screenshots/transactions.png)
-
-![Categories screen](docs/screenshots/categories.png)
-
-![Budget targets screen](docs/screenshots/budget-targets.png)
 
 ## Prerequisites
 
