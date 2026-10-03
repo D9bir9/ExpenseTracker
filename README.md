@@ -82,8 +82,6 @@ ExpenseTracker/
 
 The following screenshots showcase the application dashboard and core management screens.
 
-> Note: Add the files below to the repository under `docs/screenshots/` to render them correctly on GitHub.
-
 <img width="1920" height="1080" alt="Screenshot_20261002_231732" src="https://github.com/user-attachments/assets/5f13ee62-a236-4167-9ed7-dc5bf7e261c7" />
 
 
